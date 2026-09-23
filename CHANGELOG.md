@@ -52,6 +52,12 @@ collected at the top.
   `reports/survey_evaluation_method.md` (the frozen temporal boundary and the activation
   gate), and `reports/survey_reliable_serving.md` (fallback, artifact integrity and
   reproducibility).
+- `reports/survey_data_provenance.md`, the sixth literature survey, for the data layer:
+  where the corpus and its text sidecars come from, where the 5-core / leave-last-out /
+  absolute-timestamp protocol comes from, why the split is time-ordered, what is published
+  on cold targets and catalogue churn, and what the dataset authors state about usage
+  terms. It records every identifier and DOI beside each claim and lists the candidates it
+  dropped rather than cited, with the reason.
 
 ### Changed
 

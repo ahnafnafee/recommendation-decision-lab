@@ -130,6 +130,7 @@ identifier beside each claim, and repeat every URL in a Sources list at the end.
 | Answering a sentence | [phrase_to_products.md](reports/phrase_to_products.md) | [phrase_to_products_survey.md](reports/phrase_to_products_survey.md) |
 | Product text and the encoded route | [phrase_to_products.md](reports/phrase_to_products.md) | [survey_dense_retrieval.md](reports/survey_dense_retrieval.md) |
 | Guarded serving, fallback and reproducibility | [ARCHITECTURE.md](ARCHITECTURE.md) | [survey_reliable_serving.md](reports/survey_reliable_serving.md) |
+| The corpus, its text sidecars and redistribution | [DATA_LICENSE.md](DATA_LICENSE.md) | [survey_data_provenance.md](reports/survey_data_provenance.md) |
 
 ## Repository map and publication status
 
