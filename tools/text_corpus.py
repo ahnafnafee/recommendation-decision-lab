@@ -35,9 +35,8 @@ HF_FILE = "https://huggingface.co/datasets/{repo}/resolve/main/{path}"
 LISTING_FIELDS = ("title", "features", "description", "categories", "details", "brand", "price")
 REVIEW_LIMIT = 12
 REVIEW_CHARS = 240
-# Published phrase-to-item pairs whose items are catalogue ASINs. These are the only
-# phrases in this lab that somebody else wrote, so they anchor the shape of the
-# phrases this lab generates itself.
+# External phrase-to-item pairs whose items are catalogue ASINs. ESCI contains
+# observed search queries; Amazon-C4 contains review-derived query rewrites.
 QUERY_SOURCES = (
     {"source": "esci", "repo": "McAuley-Lab/blair-bench", "path": "processed_esci/test.csv",
      "note": "shopping queries people typed, judged against catalogue items"},

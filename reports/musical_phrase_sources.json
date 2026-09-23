@@ -1,0 +1,25 @@
+{
+  "category": "Musical_Instruments",
+  "scope": "fixed lexical diagnostic, full test denominator; source pairs attach by known target",
+  "test_requests": 35905,
+  "combined_delta": 0.002394,
+  "sources": {
+    "c4": {
+      "source_pairs_in_catalog": 53,
+      "matched_test_requests": 499,
+      "distinct_test_targets": 45,
+      "full_split_delta_contribution": 0.002538,
+      "improved_requests": 187,
+      "worsened_requests": 23
+    },
+    "esci": {
+      "source_pairs_in_catalog": 104,
+      "matched_test_requests": 182,
+      "distinct_test_targets": 49,
+      "full_split_delta_contribution": -0.000144,
+      "improved_requests": 21,
+      "worsened_requests": 42
+    }
+  },
+  "interpretation": "Descriptive decomposition of a target-linked diagnostic, not evidence of live-query routing or independent confirmation. Repeated requests share a small set of query-item pairs."
+}

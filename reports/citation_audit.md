@@ -7,7 +7,7 @@ All 26 citation keys are defined once, all 26 bibliography entries are cited, an
 | Key | Source checked | Claim-context assessment |
 | --- | --- | --- |
 | `amazon5core` | [McAuley Lab 5-core documentation](https://amazon-reviews-2023.github.io/data_processing/5core.html) | Supports the supplied history field, absolute-timestamp split, cutoffs, and category files. |
-| `hou2026bridging` | [Hou et al., BLaIR](https://arxiv.org/html/2403.03952v2) | Supports the Amazon Reviews 2023 dataset provenance; the specific 5-core split is documented by the owner page above. |
+| `hou2026bridging` | [Hou et al., BLaIR](https://arxiv.org/html/2403.03952v2) | Supports the Amazon Reviews 2023 dataset provenance and identifies Amazon-C4 as semi-synthetic queries rewritten from target-product reviews; the specific 5-core split is documented by the owner page above. |
 | `ji2023leakage` | [Ji et al., TOIS](https://doi.org/10.1145/3569930) | Supports global-timeline leakage and distorted model comparisons. |
 | `gusak2025time` | [Gusak et al., RecSys](https://doi.org/10.1145/3705328.3748164) | Supports the importance of temporal split and validation construction for sequential recommendation. |
 | `covington2016youtube` | [Covington et al., RecSys](https://doi.org/10.1145/2959100.2959190) | Supports learned candidate generation as an established production technique. |
@@ -21,7 +21,7 @@ All 26 citation keys are defined once, all 26 bibliography entries are cited, an
 | `hsu2024minimizing` | [Hsu et al., arXiv](https://arxiv.org/abs/2409.17436) | Supports simulated evaluation of onboarding preference-elicitation policies. |
 | `gupta2024selection` | [Gupta et al., arXiv](https://arxiv.org/abs/2405.00554) | Supports selection bias introduced during preference elicitation. The 2023 workshop date and 2024 preprint date are distinct. |
 | `huang2020ebr` | [Huang et al., KDD preprint](https://arxiv.org/abs/2006.11632) | Supports embedding-based retrieval in large-scale search. |
-| `reddy2022esci` | [Reddy et al., arXiv](https://arxiv.org/abs/2206.06588) | Supports the existence of manually labeled product-query relevance judgments. |
+| `reddy2022esci` | [Reddy et al., arXiv](https://arxiv.org/abs/2206.06588) | Supports the existence of observed shopping queries and manually labeled product-query relevance judgments. |
 | `reimers2019sbert` | [Reimers and Gurevych, arXiv](https://arxiv.org/abs/1908.10084) | Supports separately computed sentence embeddings. Encoding catalog text before query arrival is the manuscript's engineering inference, not an experiment reported by this source. |
 | `rahmani2024synthetic` | [Rahmani et al., SIGIR preprint](https://arxiv.org/abs/2405.07767) | Supports caution about synthetic retrieval test collections and absolute scores. |
 | `rahmani2025bias` | [Rahmani et al., CIKM preprint](https://arxiv.org/abs/2506.10301) | Supports the distinction between bias in absolute system performance and potentially smaller effects on relative comparisons. It does not validate this manuscript's constructed phrases. |
@@ -34,3 +34,5 @@ All 26 citation keys are defined once, all 26 bibliography entries are cited, an
 | `ji2020popularity` | [Ji et al., SIGIR preprint](https://arxiv.org/abs/2005.13829) | Supports a difference between lighter and heavier MovieLens users in following popularity versus individual taste. |
 
 Edits made after the audit: corrected an ungrammatical and overly broad cold-start sentence, specified that the 2026 routing comparison was from a RAG system, supplied direct URLs for three arXiv references, and completed publisher metadata for the SIGIR, *Machine Learning*, and AAAI entries. No numeric result, conclusion, or experimental claim changed. The cited literature motivates design and interpretation; it does not independently validate this study's held-out results or justify transferring effects across platforms.
+
+A subsequent provenance check found that the manuscript had incorrectly described the pooled external pairs as observed search phrases. BLaIR's Section 4.2 describes Amazon-C4 as review-derived rewrites, while ESCI supplies observed shopping queries. The revised manuscript names the two sources, reports their separate contributions to the fixed lexical diagnostic, and removes the inference that the mixed positive result establishes an effect from live query wording. The 26-reference metadata and link checks remain as recorded above; this correction changes the interpretation of one empirical condition, not the bibliography count.

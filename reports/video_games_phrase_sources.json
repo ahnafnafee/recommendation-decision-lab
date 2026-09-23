@@ -1,0 +1,25 @@
+{
+  "category": "Video_Games",
+  "scope": "fixed lexical diagnostic, full test denominator; source pairs attach by known target",
+  "test_requests": 35562,
+  "combined_delta": 0.003115,
+  "sources": {
+    "c4": {
+      "source_pairs_in_catalog": 65,
+      "matched_test_requests": 616,
+      "distinct_test_targets": 60,
+      "full_split_delta_contribution": 0.00269,
+      "improved_requests": 202,
+      "worsened_requests": 1
+    },
+    "esci": {
+      "source_pairs_in_catalog": 206,
+      "matched_test_requests": 208,
+      "distinct_test_targets": 64,
+      "full_split_delta_contribution": 0.000425,
+      "improved_requests": 37,
+      "worsened_requests": 4
+    }
+  },
+  "interpretation": "Descriptive decomposition of a target-linked diagnostic, not evidence of live-query routing or independent confirmation. Repeated requests share a small set of query-item pairs."
+}

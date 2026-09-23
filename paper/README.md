@@ -24,7 +24,10 @@ The main temporal and neural results, signal audit, and shadow-profile values ar
 recorded in aggregate JSON under `reports/`, alongside the measured wording arm's
 full test-split aggregates (`musical_phrase_exploratory.json`,
 `video_games_phrase_exploratory.json` and the encoded-route
-`musical_phrase_dense_exploratory.json`). The wording arm's protocol and reach
+`musical_phrase_dense_exploratory.json`). Source-separated lexical contributions
+for the target-linked query diagnostic are in `musical_phrase_sources.json` and
+`video_games_phrase_sources.json`; `tools/phrase_source_audit.py` reproduces them.
+The wording arm's protocol and reach
 table are tabulated in `reports/phrase_to_products.md`, with its measurement
 command in the top-level README.
 The source and claim-context checks for all manuscript references are recorded in

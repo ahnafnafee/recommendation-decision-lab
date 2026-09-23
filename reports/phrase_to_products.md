@@ -65,8 +65,9 @@ configurations are run and reported separately; neither is presented as the othe
   `reliability.benchmark.evaluation_data` row for row.
 - Six phrase conditions. `own_words` (a person's earlier review prose),
   `own_words_scrubbed`, `cross_words` (somebody else's prose, register matched),
-  `target_title`, `random_title`, `published` (a real searcher's phrase for that
-  product). `own_words`, `own_words_scrubbed`, `target_title` and `random_title` are
+  `target_title`, `random_title`, `published` (an externally sourced pair for the
+  known target: an observed ESCI search query or a review-derived Amazon-C4
+  rewrite). `own_words`, `own_words_scrubbed`, `target_title` and `random_title` are
   answer-informed: they are reported as **paired deltas only**, never as absolutes.
   `cross_words` is the generalisation control.
 - The control bar is free behavioural features, not random. A random profile scores
@@ -116,13 +117,30 @@ Instruments only, where the embedding artifact exists) is directionally
 positive on the validation cohort (+0.001048, interval −0.000062 to
 +0.002109) but loses on the full test split (−0.001282, interval −0.001944 to
 −0.000577), so the gate stays closed on both routes. Among phrase-like
-conditions, only the published search phrase has a positive full-split paired
+conditions, only the mixed external-pair condition has a positive full-split paired
 difference: +0.002394 by the lexical route and +0.002132 by the encoded route
 on Musical Instruments (intervals 0.001892 to 0.002875 and 0.001669 to
 0.002622), and +0.003115 on Video Games (0.002714 to 0.003545). These
-differences average over all test requests, although a published phrase is
+differences average over all test requests, although an external pair is
 available for only 681 Musical Instruments requests and 824 Video Games
-requests. The selected pairs do not represent live query traffic.
+requests. The selected pairs do not represent live query traffic. The lexical
+contribution decomposes as follows; each entry uses the entire category test
+split as its denominator, so the source contributions add to the mixed delta.
+
+| category | ESCI observed-query contribution | Amazon-C4 review-rewrite contribution | mixed external-pair delta |
+| --- | ---: | ---: | ---: |
+| Musical Instruments | −0.000144 (182 requests, 49 targets) | +0.002538 (499 requests, 45 targets) | +0.002394 |
+| Video Games | +0.000425 (208 requests, 64 targets) | +0.002690 (616 requests, 60 targets) | +0.003115 |
+
+The C4 pair counts in the catalog are 53 and 65; the ESCI counts are 104 and
+206. The request counts are larger because the same target-linked phrase is used
+for multiple later review requests. The [source audit](musical_phrase_sources.json)
+and [Video Games counterpart](video_games_phrase_sources.json) are reproduced by
+`python -m tools.phrase_source_audit --category Musical_Instruments` and the same
+command for `Video_Games`. This is a descriptive decomposition, not a separate
+confirmatory experiment. In Musical Instruments, the positive mixed result is
+entirely due to the review-derived rewrites; the observed-query contribution is
+negative.
 
 Two separate constraints limit the confined arm (full reach table in the
 manuscript):
@@ -134,16 +152,17 @@ manuscript):
 | `cross_words` reach | 0.74% | 0.56% | somebody else's words are worse, as expected |
 | `target_title` reach | 99.98% | 99.97% | target-informed exact wording confirms the index can recover a known title, but does not test natural-query retrieval |
 | `random_title` reach | 0.73% | 0.42% | and that is not an accident of a permissive index |
-| `published` reach | 47.72% | 33.50% | a real searcher's phrase for the product reaches far more often than the person's own prose |
+| mixed external-pair reach | 47.72% | 33.50% | target-linked ESCI queries and Amazon-C4 rewrites reach more often than earlier review prose; this is not a live-request comparison |
 
-The gap between `own_words` at 2.42% and `published` at 47.72% indicates that
-earlier review prose is a poor proxy for a later product-seeking phrase. The
+The gap between `own_words` at 2.42% and the mixed external set at 47.72%
+indicates that earlier review prose is a poor proxy for target-linked query
+wording, but does not isolate the effect of real search intent. The
 33.21% behavioural shortlist coverage is another constraint: even a useful
 phrase cannot promote a target outside that shortlist. These are marginal
 rates with different denominators, so their product is not a measured joint
 ceiling. Exact-title reach checks the index on target-informed wording; the
-published-phrase reach below 50% shows that retrieval can still fail for a
-natural query. Under the frozen protocol, the negative own-words result is
+mixed-set reach below 50% shows that retrieval can still fail even when words
+are linked to the target. Under the frozen protocol, the negative own-words result is
 reported rather than tuned away, and neither diagnostic establishes the
 quality of live typed requests.
 
@@ -160,9 +179,12 @@ Product text is fetched locally into the Git-ignored `data/text/` directory from
 or the origin mirror, with `tools/text_corpus.py`: 22,753 Musical Instruments
 listings (55,981 people with their own review prose) and 22,976 Video Games
 listings (92,807 people), corpus manifest schema 3.
-Published query pairs are scarce — `blair-bench` (ESCI) plus `Amazon-C4` give 157
-in-catalogue Musical Instruments pairs and 271 for Video Games — which is why
-`published` is a diagnostic and not the headline condition.
+External query pairs are scarce — `blair-bench` (ESCI) plus `Amazon-C4` give 157
+in-catalogue Musical Instruments pairs and 271 for Video Games. ESCI contains
+observed shopping queries, while Amazon-C4 contains semi-synthetic rewrites of
+reviews written about their target products. They must not be presented together
+as real searcher wording; this is why `published` is a diagnostic and not the
+headline condition.
 `tools/build_text_index.py` encodes each listing with `all-MiniLM-L6-v2` (384
 dimensions, 2 reviews per product so the document fits the model's 256-token
 window). Everything heavier than the standard library sits behind an optional

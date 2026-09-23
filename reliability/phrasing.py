@@ -12,14 +12,16 @@ Six ways of putting one request into words, all scored against the same requests
     target_title         the target item's own title: an oracle that already contains
                          the answer
     random_title         some unrelated item's title: a control for "any words at all"
-    published            a phrase another person actually typed for that item
+    published            an external target-linked pair: observed ESCI search
+                         query or review-derived Amazon-C4 rewrite
 
-The last four are phrases this lab did not have to invent; the first two are what a
-running system can assemble. `own_words`, `own_words_scrubbed`, `target_title` and
+The external pairs come from other collections; only the ESCI subset contains
+observed search queries. The first two conditions are what this running system can
+assemble. `own_words`, `own_words_scrubbed`, `target_title` and
 `random_title` are reported only as paired differences against `base`, never as
 absolute scores, because the wording was chosen with the answer in view. The
-`published` column is read on its own terms: independent of behaviour but small, so
-it anchors phrase shape rather than carrying the result.
+`published` column is target-linked and small, so it anchors phrase shape rather
+than carrying a recommendation result. Its two source types must be read separately.
 
 Alongside the metric, each condition reports how often the products the phrase
 route reached actually contained the answer. That reach is the ceiling every later
@@ -97,7 +99,7 @@ def published_by_item(pairs) -> dict[str, list[tuple[str, str]]]:
 
 @dataclass(frozen=True)
 class Phrases:
-    """Everything needed to put one request into words, from material that predates it."""
+    """Construct the six diagnostic wordings for a request."""
 
     voices: dict[str, list]
     titles: dict[str, str]
@@ -552,8 +554,8 @@ def run(data: Path, destination: Path, text: Path | None = None,
                      "own_words skips the target item's own text, yet a person's earlier sentences can "
                      "still name the product they had already decided on; the scrubbed column measures "
                      "how much of any gain is that, and it is a diagnostic, not a fix",
-                     "published phrases are few and were written for other purposes, so that column "
-                     "anchors phrase shape rather than carrying the result",
+                     "external query pairs are few and attached by known target; the ESCI search "
+                     "queries and Amazon-C4 review-derived rewrites must be read separately",
                      "product prose is cut at the train cutoff, but a person's own sentences inside the "
                      "evaluation period can describe the item they went on to review",
                      "one fixed temporal split per category, aggregate output only",

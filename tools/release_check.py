@@ -16,6 +16,7 @@ EXACT = {"web/index.html", "web/app.js", "web/demo_bundle.json",
          ".github/ISSUE_TEMPLATE/bug-report.md", ".github/ISSUE_TEMPLATE/question.md",
          ".github/PULL_REQUEST_TEMPLATE.md",
          "tools/release_check.py", "tools/signal_audit.py", "tools/text_corpus.py",
+         "tools/phrase_source_audit.py",
          "tools/build_text_index.py", "paper/main.tex", "paper/main.pdf", "paper/README.md"}
 FORBIDDEN_JSON_KEYS = {"user_id", "parent_asin", "history", "target", "ranked", "weights", "model"}
 
