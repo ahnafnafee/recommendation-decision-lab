@@ -58,6 +58,19 @@ The first command saves fitted weights and a hash-checked manifest only in ignor
 
 The [exploratory neural extension](reports/neural_extension.md) records the measured result. On Musical Instruments, the calibrated neural blend beat recent popularity but did not beat the existing co-review hybrid, so its stronger-challenger gate stayed closed. This category's test period was already known from the earlier study; the extension is a model-development comparison, not a new independent confirmation. The synthetic browser demo remains separate from fitted review-derived weights.
 
+## Shadow-profile extension
+
+The committed route personalises from the positive-review history attached to the current request and discards the rest of what the archive holds: star ratings below four on items the user actually reviewed, history items outside the last twenty, the size of the history itself, and the same user identifier's activity on another surface. This exploratory extension builds user profiles from that remainder and keeps the two acquisition modes apart because their costs are not comparable: inferred evidence is free to the user, while elicited evidence costs questions.
+
+```powershell
+python -m tools.signal_audit --data data --categories Musical_Instruments Video_Games --output runs/signal_audit.json
+python -m reliability.shadow --data data --output runs/musical-shadow-v2 --category Musical_Instruments --donor-category Video_Games
+```
+
+The audit answers how much discarded evidence exists: in Musical Instruments, 47,459 validation history slots already carry a rating below four, while 1,288 eligible requests have no history to infer from. For all 14,175 validation users with a prior training record, the request's own `history` column reproduced that record exactly. The last-twenty-items window is therefore a scorer choice; 23% of distinct history items and 25% of the low ratings in those records sit outside it. The pilot scores six challengers against the route validation already chose, using the same full-catalog evaluation and paired user-cluster gate as the earlier study. It refuses an existing output directory and publishes aggregates only. Omit `--donor-category` to skip the cross-surface probe, or add `--include-test` to report the selected configuration on the already-exposed test period.
+
+The [shadow-profile design note](reports/shadow_profile_design.md) records the measured result and its limits. On Musical Instruments the two arms that mined evidence the platform already held opened the gate: repulsion from discarded sub-four ratings gained `+0.000449` NDCG@10 (95% interval `0.000266` to `0.000626`) at exactly zero user cost, and graded rating weights with age decay gained `+0.000466` (`0.000165` to `0.000750`). The published eight-cell ablation says where the second gain lives: almost all of it is the age decay, a three-year half-life beating no decay by `+0.000412` while the graded weights add `+0.000054` on top, and a 90-day half-life loses most of the benefit. For comparison, three interview questions bought `+0.000139` when the system was allowed to record only likes and `+0.000540` when it could also record dislikes; a hundred questions bought `+0.000940` (`0.000613` to `0.001259`) at a cost of about 248 questions per usable answer. A prior borrowed from comparable first purchases lost instead, and borrowing a profile from the adjacent category could not be measured at all: a donor record was reachable for 47 of the 33,993 requests. The arm conditioning on history size also cleared the gate, and its real finding was a routing one: accuracy peaks at one or two recorded items and falls steadily after, so the committed blend over-trusts the longest histories. Every number is exploratory: both of this repository's test periods were already opened by earlier studies.
+
 ## Manuscript
 
 The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. It is also available as a [ResearchGate preprint](https://www.researchgate.net/publication/414634917_When_Does_Personalization_Earn_the_Route_A_Full-Catalog_Temporal_Study_of_Guarded_Recommendation). Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
@@ -68,6 +81,7 @@ The [paper](paper/main.pdf) presents the temporal comparison, neural challenger,
 - A gate that declines a challenger without sufficient validation evidence, plus runtime fallback when the challenger fails or a history is unsupported.
 - Train-only popularity and item co-review modeling, deterministic retrieval, a hash-checked local bundle, an HTTP interface, aggregate request metrics and end-to-end service checks.
 - A trained, hash-checked two-tower retrieval path that can be compared with the existing route and inspected as a shadow without displacing a stronger challenger.
+- A measured comparison between evidence the platform already holds and evidence it must ask for: two arms that mine already-held discarded ratings cleared the activation gate at zero user cost, while the arm that asked the user instead needed roughly 248 questions per usable answer.
 - An auditable failure: the first exploratory replay silently dropped personalization because neighbor tuple fields were reversed. A training-to-ranking regression test now catches that fault.
 
 The 5-core dataset was retrospectively filtered using the full corpus; a review is not an exposure or engagement label. A second product category is useful transfer evidence but remains on the same platform and one temporal split. Local timing excludes HTTP, initialization, concurrency and network effects. These limits are explained in the [research note](reports/transfer_note.md).
@@ -76,10 +90,11 @@ The 5-core dataset was retrospectively filtered using the full corpus; a review 
 
 | Path | Purpose |
 | --- | --- |
-| `reliability/` | Training, full-catalog evaluation, bundle verification and local service |
+| `reliability/` | Training, full-catalog evaluation, bundle verification, local service and shadow-profile arms |
 | `reports/` | Public-safe aggregates and research interpretation |
 | `paper/` | Manuscript PDF, source and build instructions |
+| `tools/` | Release check and the aggregate signal audit that bounds the shadow-profile questions |
 | `web/` | Dependency-free synthetic browser demo with static fallback |
-| `tests/` | Exact-ranking, training-path, bundle and HTTP fallback checks |
+| `tests/` | Exact-ranking, training-path, bundle, HTTP-fallback and negative-evidence retrieval checks |
 
 Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [public GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) contains source, the manuscript and aggregate results, but no review archives or fitted weights. The paper has no claimed conference or journal acceptance. `CITATION.cff` names Ahnaf An Nafee for software citation.

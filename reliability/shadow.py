@@ -408,7 +408,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
         candidates = [cell for cell in cells if not exclude_budget or cell[2] == 0]
         return max(candidates, key=lambda cell: (mean(cells[cell]), -cell[0], -cell[1]))
 
-    def register(name, cells, note=""):
+    def register(name, cells, note="", extra=None, timing=None):
         alpha, gamma, _ = best_cell(cells)
         outcomes = cells[(alpha, gamma, 0)]
         arms[name] = {"ndcg_at_10": quality(outcomes)["ndcg_at_10"],
@@ -418,34 +418,38 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                       "grid": {f"{a}|{g}": round(quality(v)["ndcg_at_10"], 6)
                                for (a, g, _), v in sorted(cells.items())},
                       "note": note}
+        if timing is not None:
+            arms[name]["local_cpu_request_ms_p95"] = percentile(timing, .95)
+        if extra:
+            arms[name].update(extra)
         report(f"{name} scored", started)
 
-    repulsion_cells, _, _, _ = score_requests(shadow, validation, baseline, (hybrid_alpha,), GAMMAS)
+    repulsion_cells, _, _, repulsion_timing = score_requests(shadow, validation, baseline, (hybrid_alpha,), GAMMAS)
     register("C1_repulsion", repulsion_cells,
-             "gamma=0 reproduces the committed hybrid; larger gamma penalises items the user rated at most 3")
+             "gamma=0 reproduces the committed hybrid; larger gamma penalises items the user rated at most 3",
+             timing=repulsion_timing)
 
-    weighting_grid = {}
+    weighting_grid, weighting_cells, weighting_timing = {}, {}, {}
     for half_life in HALF_LIVES:
         for graded in (False, True):
-            cells, _, _, _ = score_requests(shadow, validation, baseline, (hybrid_alpha,), (0.0,),
-                                            graded=graded, half_life=half_life)
-            weighting_grid[f"half_life={half_life}|graded={graded}"] = round(
-                quality(cells[(hybrid_alpha, 0.0, 0)])["ndcg_at_10"], 6)
+            cells, _, _, cells_timing = score_requests(shadow, validation, baseline, (hybrid_alpha,), (0.0,),
+                                                       graded=graded, half_life=half_life)
+            key = f"half_life={half_life}|graded={graded}"
+            weighting_cells[key] = cells[(hybrid_alpha, 0.0, 0)]
+            weighting_timing[key] = cells_timing
+            weighting_grid[key] = round(quality(weighting_cells[key])["ndcg_at_10"], 6)
     best_weight = max(weighting_grid, key=weighting_grid.get)
-    best_half_life, graded_text = best_weight.split("|")
-    cells, _, _, _ = score_requests(shadow, validation, baseline, (hybrid_alpha,), (0.0,),
-                                    graded=graded_text == "graded=True",
-                                    half_life=None if best_half_life == "half_life=None"
-                                    else int(best_half_life.split("=")[1]))
-    register("C2_graded_decay", cells,
-             f"best cell {best_weight}; graded rating weights and exponential age decay, repulsion off")
+    register("C2_graded_decay", {(hybrid_alpha, 0.0, 0): weighting_cells[best_weight]},
+             f"selected configuration {best_weight}: graded rating weights and exponential age decay, "
+             "repulsion off; the configuration was chosen on this cohort, so its interval is optimistic",
+             {"configurations": weighting_grid}, timing=weighting_timing[best_weight])
 
-    novice_cells, _, novice_stats, _ = score_requests(shadow, validation, baseline, (hybrid_alpha,),
-                                                      (0.0,), novice_for_cold=True)
+    novice_cells, _, novice_stats, novice_timing = score_requests(shadow, validation, baseline, (hybrid_alpha,),
+                                                                  (0.0,), novice_for_cold=True)
     register("C3_novice_prior", novice_cells,
-             "first-purchase prior substituted where no personalisable history exists")
+             "first-purchase prior substituted where no personalisable history exists", timing=novice_timing)
 
-    interview_cells, interview_costs, _, _ = score_requests(
+    interview_cells, interview_costs, _, interview_timing = score_requests(
         shadow, validation, baseline, (hybrid_alpha,), (0.0, REPULSION_USED),
         budgets=QUESTION_BUDGETS)
     requests = len(validation)
@@ -465,10 +469,13 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                         validation, active_outcomes, interview_cells[(hybrid_alpha, gamma, budget)]),
                 } for gamma in (0.0, REPULSION_USED)},
             } for budget in QUESTION_BUDGETS},
+        "local_cpu_request_ms_p95": percentile(interview_timing, .95),
         "note": ("answers come from the user's own observable rating of the asked item, and the target is never "
-                 "asked; gamma=0 uses only declared likes, gamma=1 also uses declared dislikes")}
+                 "asked; gamma=0 uses only declared likes, gamma=1 also uses declared dislikes; the reported p95 "
+                 "covers one request scored across all ten budget-by-gamma cells")}
 
-    bucket_cells, _, _, _ = score_requests(shadow, validation, baseline, (0.0,) + HYBRID_ALPHAS, (0.0,))
+    bucket_cells, _, _, bucket_timing = score_requests(shadow, validation, baseline,
+                                                       (0.0,) + HYBRID_ALPHAS, (0.0,))
     indices_by_bucket: dict[str, list[int]] = defaultdict(list)
     for index, (_, _, history, _) in enumerate(validation):
         indices_by_bucket[bucket_of(len(history))].append(index)
@@ -492,6 +499,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
         "recall_at_10": quality(composed)["recall_at_10"],
         "delta_versus_active": user_cluster_interval(validation, active_outcomes, composed),
         "per_bucket": bucket_report,
+        "local_cpu_request_ms_p95": percentile(bucket_timing, .95),
         "note": "blend weight inferred from history size alone; alpha chosen per bucket on validation, so this arm is optimistic"}
 
     if donor_category:
@@ -513,7 +521,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                     totals[neighbour] = totals.get(neighbour, 0.0) + value
             return totals
 
-        adjacent_cells, _, adjacent_stats, _ = score_requests(
+        adjacent_cells, _, adjacent_stats, adjacent_timing = score_requests(
             shadow, validation, baseline, (hybrid_alpha,), (0.0,), projection=projection)
         arms["C6_adjacent_surface"] = {
             "donor_category": donor_category,
@@ -521,6 +529,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
             "delta_versus_active": user_cluster_interval(
                 validation, active_outcomes, adjacent_cells[(hybrid_alpha, 0.0, 0)]),
             "requests_with_adjacent_activity": adjacent_stats["adjacent_route_requests"],
+            "local_cpu_request_ms_p95": percentile(adjacent_timing, .95),
             "share_of_requests": adjacent_stats["adjacent_route_requests"] / len(validation),
             "note": ("the donor surface is scored only where the request has nothing personalisable in its own "
                      "history; a small cohort measures feasibility, not effect size")}
@@ -530,8 +539,12 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                 "active_ndcg_at_10": quality(active_outcomes)["ndcg_at_10"],
                 "popularity_controls": {"lifetime": lifetime_quality, "recent": recent_quality},
                 "arms": arms, "training": train_stats, "validation": validation_stats,
-                "routing_stats": {**hybrid_stats, **novice_stats},
-                "local_cpu_request_ms_p95": percentile(hybrid_timing, .95),
+                "routing_stats": {"measured_by_arms": "route selection and C3, which score without a projection",
+                                  **hybrid_stats, **novice_stats},
+                "blend_selection_request_ms_p95": percentile(hybrid_timing, .95),
+                "timing_note": ("every p95 is the local wall-clock time of scoring one validation request through "
+                                "that arm's own grid, single process, no concurrency; grid sizes differ between "
+                                "arms, so a figure compares an arm with its own grid, not arms with each other"),
                 "elapsed_seconds": round(perf_counter() - started, 1),
                 "source_sha256": {split: file_hash(paths[split]) for split in ("train", "valid")}}
     (destination / "validation_decision.json").write_text(json.dumps(decision, indent=2), encoding="utf-8")
@@ -561,9 +574,14 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                     test, reference, test_cells[(alpha, gamma, budget)])}
         aggregate["test"] = test_report
     (destination / "aggregate.json").write_text(json.dumps(aggregate, indent=2), encoding="utf-8")
+    interview = arms.get("C5_interview")
+    deepest = (interview["budgets"][str(max(QUESTION_BUDGETS))]["columns"][f"gamma={REPULSION_USED}"]
+               if interview else None)
+    headline = {name: arm.get("ndcg_at_10") for name, arm in arms.items()}
+    if deepest:
+        headline["C5_interview"] = deepest["ndcg_at_10"]
     print(json.dumps({"output": str(destination / "aggregate.json"), "active_route": active_name,
-                      "active_ndcg_at_10": decision["active_ndcg_at_10"],
-                      "arms": {name: arm.get("ndcg_at_10") for name, arm in arms.items()}}, indent=2))
+                      "active_ndcg_at_10": decision["active_ndcg_at_10"], "arms": headline}, indent=2))
     return aggregate
 
 
