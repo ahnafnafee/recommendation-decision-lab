@@ -168,6 +168,19 @@ class RefusalTests(unittest.TestCase):
 
 
 class NoNumpyTests(unittest.TestCase):
+    def test_the_sparse_path_rejects_bad_shape(self):
+        original = module._numpy
+        module._numpy = lambda: None
+        try:
+            with self.assertRaisesRegex(ValueError, "expected 2x4 vectors"):
+                EmbeddingIndex(["a", "b"], [[1.0, 0.0], [0.0, 1.0]], 4,
+                               letter_vector)
+            with self.assertRaisesRegex(ValueError, "expected 2x4 vectors"):
+                EmbeddingIndex(["a", "b"], [[1.0, 0.0, 0.0, 0.0]], 4,
+                               letter_vector)
+        finally:
+            module._numpy = original
+
     def test_the_sparse_path_agrees_with_the_dense_one(self):
         with TemporaryDirectory() as raw:
             directory = Path(raw)

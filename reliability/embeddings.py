@@ -96,10 +96,15 @@ class EmbeddingIndex:
             self.matrix = matrix
         else:
             flat = array("f")
-            for row in vectors:
+            row_count = 0
+            for row_count, row in enumerate(vectors, start=1):
                 if len(row) != self.dimensions:
-                    raise ValueError("every embedding row needs the same dimensions")
+                    raise ValueError(f"expected {len(self.items)}x{self.dimensions} vectors, "
+                                     f"found row {row_count} with {len(row)} dimensions")
                 flat.extend(row)
+            if row_count != len(self.items):
+                raise ValueError(f"expected {len(self.items)}x{self.dimensions} vectors, "
+                                 f"found {row_count} rows")
             self.flat = flat
 
     def _vector(self, text: str):
