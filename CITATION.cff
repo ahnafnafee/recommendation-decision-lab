@@ -3,6 +3,7 @@ message: "Please cite this software and the Amazon Reviews'23 dataset source whe
 type: software
 title: "Recommendation Decision Lab"
 version: 0.1.0
+repository-code: "https://github.com/ahnafnafee/recommendation-decision-lab"
 authors:
   - family-names: "Nafee"
     given-names: "Ahnaf An"
