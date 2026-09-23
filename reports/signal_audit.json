@@ -1,0 +1,176 @@
+{
+  "Musical_Instruments": {
+    "category": "Musical_Instruments",
+    "train": {
+      "rows": 427957,
+      "train_positive_rows": 367558
+    },
+    "train_users": 54483,
+    "train_items": 22753,
+    "train_rating_histogram": {
+      "1": 17486,
+      "2": 14335,
+      "3": 28578,
+      "4": 64120,
+      "5": 303438
+    },
+    "splits": {
+      "valid": {
+        "rows": 41284,
+        "positive_rows": 33993,
+        "first_seen_user": 7650,
+        "positive_history_len_sum": 369357,
+        "repeat_target": 0,
+        "distinct_items_in_profile_cap": 319837,
+        "in_profile_cap_rating_known": 229540,
+        "in_profile_cap_rating_below_four": 35444,
+        "new_item_target": 4271,
+        "distinct_items_beyond_profile_cap": 96979,
+        "beyond_profile_cap_rating_known": 90292,
+        "beyond_profile_cap_rating_below_four": 12015,
+        "empty_history": 1573,
+        "profile_cap": 20,
+        "history_column_users_checked": 14175,
+        "history_column_exact_matches": 14175,
+        "history_column_covers_all_prior_items": 14175,
+        "history_column_mean_prior_items_recalled": 1.0,
+        "history_slots": 416816,
+        "history_slots_rating_known": 319832,
+        "history_slots_rating_below_four": 47459,
+        "history_slots_without_user_item_training_rating": 96984,
+        "history_slots_item_absent_from_train_catalog": 20310,
+        "history_len_buckets": {
+          "0": 1573,
+          "1-2": 5287,
+          "20+": 4744,
+          "3-5": 13361,
+          "6-19": 16319
+        },
+        "mean_history_len_all": 10.09630849723864
+      },
+      "test": {
+        "rows": 42595,
+        "positive_rows": 35905,
+        "first_seen_user": 15408,
+        "positive_history_len_sum": 464811,
+        "repeat_target": 0,
+        "distinct_items_beyond_profile_cap": 143064,
+        "beyond_profile_cap_rating_known": 78773,
+        "beyond_profile_cap_rating_below_four": 11156,
+        "distinct_items_in_profile_cap": 355758,
+        "in_profile_cap_rating_known": 146015,
+        "in_profile_cap_rating_below_four": 22855,
+        "new_item_target": 13986,
+        "empty_history": 1383,
+        "profile_cap": 20,
+        "history_column_users_checked": 10759,
+        "history_column_exact_matches": 5176,
+        "history_column_covers_all_prior_items": 10759,
+        "history_column_mean_prior_items_recalled": 1.0,
+        "history_slots": 498822,
+        "history_slots_rating_known": 224788,
+        "history_slots_rating_below_four": 34011,
+        "history_slots_without_user_item_training_rating": 274034,
+        "history_slots_item_absent_from_train_catalog": 136468,
+        "history_len_buckets": {
+          "0": 1383,
+          "1-2": 4506,
+          "20+": 5935,
+          "3-5": 13437,
+          "6-19": 17334
+        },
+        "mean_history_len_all": 11.710811128066675
+      }
+    },
+    "shared_train_users": {
+      "Video_Games": 2802
+    }
+  },
+  "Video_Games": {
+    "category": "Video_Games",
+    "train": {
+      "rows": 736827,
+      "train_positive_rows": 592599
+    },
+    "train_users": 91562,
+    "train_items": 22976,
+    "train_rating_histogram": {
+      "1": 46799,
+      "2": 33282,
+      "3": 64147,
+      "4": 122766,
+      "5": 469833
+    },
+    "splits": {
+      "valid": {
+        "rows": 34510,
+        "positive_rows": 26706,
+        "first_seen_user": 6404,
+        "positive_history_len_sum": 263426,
+        "repeat_target": 0,
+        "distinct_items_in_profile_cap": 237073,
+        "in_profile_cap_rating_known": 177059,
+        "in_profile_cap_rating_below_four": 37552,
+        "new_item_target": 9615,
+        "distinct_items_beyond_profile_cap": 79701,
+        "beyond_profile_cap_rating_known": 77654,
+        "beyond_profile_cap_rating_below_four": 15796,
+        "empty_history": 1416,
+        "profile_cap": 20,
+        "history_column_users_checked": 14239,
+        "history_column_exact_matches": 14239,
+        "history_column_covers_all_prior_items": 14239,
+        "history_column_mean_prior_items_recalled": 1.0,
+        "history_slots": 316774,
+        "history_slots_rating_known": 254713,
+        "history_slots_rating_below_four": 53348,
+        "history_slots_without_user_item_training_rating": 62061,
+        "history_slots_item_absent_from_train_catalog": 16388,
+        "history_len_buckets": {
+          "0": 1416,
+          "1-2": 4741,
+          "20+": 3006,
+          "3-5": 13250,
+          "6-19": 12097
+        },
+        "mean_history_len_all": 9.179194436395248
+      },
+      "test": {
+        "rows": 43249,
+        "positive_rows": 35562,
+        "first_seen_user": 17736,
+        "positive_history_len_sum": 351174,
+        "repeat_target": 0,
+        "distinct_items_in_profile_cap": 299832,
+        "in_profile_cap_rating_known": 125513,
+        "in_profile_cap_rating_below_four": 28042,
+        "new_item_target": 26158,
+        "empty_history": 1784,
+        "distinct_items_beyond_profile_cap": 93026,
+        "beyond_profile_cap_rating_known": 62101,
+        "beyond_profile_cap_rating_below_four": 13642,
+        "profile_cap": 20,
+        "history_column_users_checked": 11283,
+        "history_column_exact_matches": 6657,
+        "history_column_covers_all_prior_items": 11283,
+        "history_column_mean_prior_items_recalled": 1.0,
+        "history_slots": 392858,
+        "history_slots_rating_known": 187614,
+        "history_slots_rating_below_four": 41684,
+        "history_slots_without_user_item_training_rating": 205244,
+        "history_slots_item_absent_from_train_catalog": 130554,
+        "history_len_buckets": {
+          "0": 1784,
+          "1-2": 5780,
+          "20+": 3629,
+          "3-5": 16236,
+          "6-19": 15820
+        },
+        "mean_history_len_all": 9.083631991491133
+      }
+    },
+    "shared_train_users": {
+      "Musical_Instruments": 2802
+    }
+  }
+}

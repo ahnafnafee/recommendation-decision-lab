@@ -20,9 +20,10 @@ Passes over `-pdf` produce the same output. LaTeX intermediates (`.aux`, `.log`,
 release boundary reported by `tools/release_check.py` unchanged; the tracked PDF is
 updated only when the manuscript itself changes.
 
-Every number in the manuscript is reproducible from a committed aggregate JSON under
-`reports/` or from the commands in the top-level README; none of them is quoted from a
-local file that is not in the repository. The public code and aggregate results are at
+The main temporal and neural results, signal audit, and shadow-profile values are
+recorded in aggregate JSON under `reports/`. The wording pilot is tabulated in
+`reports/phrase_to_products.md`, with its measurement command in the top-level README.
+These artifacts contain no user-level predictions or fitted weights. The public code and aggregate results are at
 <https://github.com/ahnafnafee/recommendation-decision-lab>. Raw reviews, user-level
 outputs, and model weights remain local. The manuscript is also available as a
 [ResearchGate preprint](https://www.researchgate.net/publication/414634917_When_Does_Personalization_Earn_the_Route_A_Full-Catalog_Temporal_Study_of_Guarded_Recommendation).

@@ -154,6 +154,15 @@ class ShadowInterviewTests(unittest.TestCase):
         self.assertEqual(costs[1], (1, 0, 0, 0))
         self.assertEqual(costs[2], (2, 1, 1, 0))
 
+    def test_interview_does_not_reask_about_items_beyond_profile_window(self):
+        history = tuple(f"old{index}" for index in range(21))
+        shadow = tiny_shadow(questions=("old0", "i1"),
+                             oracle={"u1": {"old0": (5, 1), "i1": (5, 2)}})
+        _, costs, _, _ = score_requests(shadow, [("u1", "i4", history, 10_000)],
+                                        "lifetime", (0.5,), (0.0,), budgets=(0, 1))
+        self.assertEqual(costs[1]["asked"], 1)
+        self.assertEqual(costs[1]["answers"], 1)
+
     def test_budgets_share_evidence_and_keep_every_cell_scored(self):
         queries = [("u1", "i4", ("h1",), 10_000), ("u2", "i0", (), 10_000)]
         shadow = tiny_shadow(questions=("i1", "i2", "i9"),
@@ -224,6 +233,34 @@ class ShadowCohortTests(unittest.TestCase):
         self.assertEqual(stats["new_item_targets"], 1)
         self.assertEqual(stats["empty_history"], 1)
         self.assertEqual(stats["eligible_requests"], 2)
+
+
+class SignalAuditTests(unittest.TestCase):
+    def test_missing_user_rating_is_not_an_unseen_catalog_item(self):
+        import csv
+        import gzip
+        from reliability.benchmark import T1, T2
+        from tools.signal_audit import audit
+
+        fields = ("user_id", "parent_asin", "rating", "timestamp", "history")
+        rows = {
+            "train": [("u1", "A", 2, T1 - 2, ""), ("u2", "B", 5, T1 - 1, "")],
+            "valid": [("u1", "D", 5, T1 + 1, "A B C")],
+            "test": [("u1", "E", 5, T2 + 1, "")],
+        }
+        with TemporaryDirectory() as temporary:
+            for split, records in rows.items():
+                path = Path(temporary) / f"Musical_Instruments.{split}.csv.gz"
+                with gzip.open(path, "wt", encoding="utf-8", newline="") as stream:
+                    writer = csv.writer(stream)
+                    writer.writerow(fields)
+                    writer.writerows(records)
+            result, _ = audit(Path(temporary), "Musical_Instruments")
+
+        valid = result["splits"]["valid"]
+        self.assertEqual(valid["history_slots_rating_below_four"], 1)
+        self.assertEqual(valid["history_slots_without_user_item_training_rating"], 2)
+        self.assertEqual(valid["history_slots_item_absent_from_train_catalog"], 1)
 
 
 if __name__ == "__main__":

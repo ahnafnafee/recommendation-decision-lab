@@ -55,7 +55,8 @@ def audit(data: Path, category: str):
         low_rated_in_history = 0
         history_slots = 0
         known_in_history = 0
-        unseen_in_train_catalog = 0
+        without_user_item_training_rating = 0
+        absent_from_train_catalog = 0
         first_moment: dict[str, int] = {}
         first_history: dict[str, set[str]] = {}
         for row in read_rows(paths[split]):
@@ -83,10 +84,11 @@ def audit(data: Path, category: str):
                 history_slots += 1
                 observed = train_rating.get(f"{user}|{item}")
                 if observed is None:
-                    unseen_in_train_catalog += 1
+                    without_user_item_training_rating += 1
                 else:
                     known_in_history += 1
                     low_rated_in_history += int(observed < 4)
+                absent_from_train_catalog += int(item not in train_rating_by_item)
             # The recommender reads the most recent PROFILE_CAP distinct items.
             # Everything past that window is still held and still rated, so count
             # what the window discards: it is evidence available at no user cost.
@@ -126,7 +128,8 @@ def audit(data: Path, category: str):
         stats["history_slots"] = history_slots
         stats["history_slots_rating_known"] = known_in_history
         stats["history_slots_rating_below_four"] = low_rated_in_history
-        stats["history_slots_not_in_train"] = unseen_in_train_catalog
+        stats["history_slots_without_user_item_training_rating"] = without_user_item_training_rating
+        stats["history_slots_item_absent_from_train_catalog"] = absent_from_train_catalog
         stats["history_len_buckets"] = dict(sorted(history_length.items()))
         stats["mean_history_len_all"] = history_slots / max(1, stats["rows"])
         result["splits"][split] = dict(stats)

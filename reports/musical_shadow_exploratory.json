@@ -1,0 +1,347 @@
+{
+  "source": "https://amazon-reviews-2023.github.io/data_processing/5core.html",
+  "experiment": "Musical_Instruments shadow-profile pilot",
+  "status": "exploratory; this category's test period was already opened by earlier studies",
+  "validation_decision": {
+    "category": "Musical_Instruments",
+    "baseline": "recent",
+    "hybrid_alpha": 0.75,
+    "hybrid_gate": {
+      "delta": 0.0012538119668424027,
+      "lower": 0.0004220061257854118,
+      "upper": 0.002049086692749002,
+      "users": 13908,
+      "draws": 1000
+    },
+    "active_route": "hybrid",
+    "active_ndcg_at_10": 0.011969058017970349,
+    "popularity_controls": {
+      "lifetime": {
+        "ndcg_at_10": 0.00817344992270708,
+        "recall_at_10": 0.014708910658076663
+      },
+      "recent": {
+        "ndcg_at_10": 0.010715246051127945,
+        "recall_at_10": 0.02150442738210808
+      }
+    },
+    "arms": {
+      "C1_repulsion": {
+        "ndcg_at_10": 0.012417670467986247,
+        "recall_at_10": 0.02379901744476804,
+        "alpha": 0.75,
+        "gamma": 1.0,
+        "delta_versus_active": {
+          "delta": 0.0004486124500158993,
+          "lower": 0.0002661865612203714,
+          "upper": 0.000625856555259492,
+          "users": 13908,
+          "draws": 1000
+        },
+        "grid": {
+          "0.75|0.0": 0.011969,
+          "0.75|0.25": 0.012227,
+          "0.75|0.5": 0.012345,
+          "0.75|1.0": 0.012418
+        },
+        "note": "gamma=0 reproduces the committed hybrid; larger gamma penalises items the user rated at most 3",
+        "local_cpu_request_ms_p95": 2.5404999978491105
+      },
+      "C2_graded_decay": {
+        "ndcg_at_10": 0.012435346062509275,
+        "recall_at_10": 0.0238872709087165,
+        "alpha": 0.75,
+        "gamma": 0.0,
+        "delta_versus_active": {
+          "delta": 0.00046628804453892683,
+          "lower": 0.00016527436233215379,
+          "upper": 0.000750419351155523,
+          "users": 13908,
+          "draws": 1000
+        },
+        "grid": {
+          "0.75|0.0": 0.012435
+        },
+        "note": "selected configuration half_life=1095|graded=True: graded rating weights and exponential age decay, repulsion off; the configuration was chosen on this cohort, so its interval is optimistic",
+        "local_cpu_request_ms_p95": 1.4634999970439821,
+        "configurations": {
+          "half_life=None|graded=False": 0.011969,
+          "half_life=None|graded=True": 0.012074,
+          "half_life=1095|graded=False": 0.012381,
+          "half_life=1095|graded=True": 0.012435,
+          "half_life=365|graded=False": 0.012323,
+          "half_life=365|graded=True": 0.012309,
+          "half_life=90|graded=False": 0.012117,
+          "half_life=90|graded=True": 0.012075
+        }
+      },
+      "C3_novice_prior": {
+        "ndcg_at_10": 0.011823565840535748,
+        "recall_at_10": 0.02265172241343806,
+        "alpha": 0.75,
+        "gamma": 0.0,
+        "delta_versus_active": {
+          "delta": -0.00014549217743459956,
+          "lower": -0.0002698890207790452,
+          "upper": -2.776645975120023e-05,
+          "users": 13908,
+          "draws": 1000
+        },
+        "grid": {
+          "0.75|0.0": 0.011824
+        },
+        "note": "first-positive-review prior substituted where no personalisable history exists",
+        "local_cpu_request_ms_p95": 1.4714999997522682
+      },
+      "C5_interview": {
+        "budgets": {
+          "0": {
+            "questions_per_request": 0.0,
+            "answers_per_request": 0.0,
+            "declared_positive_per_request": 0.0,
+            "declared_negative_per_request": 0.0,
+            "questions_per_answer": null,
+            "columns": {
+              "gamma=0.0": {
+                "ndcg_at_10": 0.011969058017970349,
+                "recall_at_10": 0.023151825375812667,
+                "delta_versus_active": {
+                  "delta": 0.0,
+                  "lower": 0.0,
+                  "upper": 0.0,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              },
+              "gamma=1.0": {
+                "ndcg_at_10": 0.012417670467986247,
+                "recall_at_10": 0.02379901744476804,
+                "delta_versus_active": {
+                  "delta": 0.0004486124500158993,
+                  "lower": 0.0002661865612203714,
+                  "upper": 0.000625856555259492,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              }
+            }
+          },
+          "3": {
+            "questions_per_request": 3.0,
+            "answers_per_request": 0.030447445062218692,
+            "declared_positive_per_request": 0.0274174094666549,
+            "declared_negative_per_request": 0.0030300355955637927,
+            "questions_per_answer": 98.53,
+            "columns": {
+              "gamma=0.0": {
+                "ndcg_at_10": 0.012080253142312446,
+                "recall_at_10": 0.02335775012502574,
+                "delta_versus_active": {
+                  "delta": 0.00011119512434209776,
+                  "lower": -2.2531115246128496e-05,
+                  "upper": 0.000267497601531089,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              },
+              "gamma=1.0": {
+                "ndcg_at_10": 0.012504045696775401,
+                "recall_at_10": 0.02397552437266496,
+                "delta_versus_active": {
+                  "delta": 0.000534987678805053,
+                  "lower": 0.00030283247771057195,
+                  "upper": 0.0007893765051604063,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              }
+            }
+          },
+          "10": {
+            "questions_per_request": 10.0,
+            "answers_per_request": 0.054069955579089814,
+            "declared_positive_per_request": 0.04762745271085223,
+            "declared_negative_per_request": 0.006442502868237578,
+            "questions_per_answer": 184.95,
+            "columns": {
+              "gamma=0.0": {
+                "ndcg_at_10": 0.01208053214445891,
+                "recall_at_10": 0.02332833230370959,
+                "delta_versus_active": {
+                  "delta": 0.00011147412648856138,
+                  "lower": -4.503712779166741e-05,
+                  "upper": 0.0002917542784663834,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              },
+              "gamma=1.0": {
+                "ndcg_at_10": 0.012491489961927903,
+                "recall_at_10": 0.023916688730032654,
+                "delta_versus_active": {
+                  "delta": 0.0005224319439575554,
+                  "lower": 0.0002875724379918926,
+                  "upper": 0.0007887896179181781,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              }
+            }
+          },
+          "30": {
+            "questions_per_request": 30.0,
+            "answers_per_request": 0.0985791192304298,
+            "declared_positive_per_request": 0.08637072338422616,
+            "declared_negative_per_request": 0.01220839584620363,
+            "questions_per_answer": 304.32,
+            "columns": {
+              "gamma=0.0": {
+                "ndcg_at_10": 0.012105752337876495,
+                "recall_at_10": 0.02341658576765805,
+                "delta_versus_active": {
+                  "delta": 0.00013669431990614674,
+                  "lower": -4.0278974464666304e-05,
+                  "upper": 0.00032309792317817545,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              },
+              "gamma=1.0": {
+                "ndcg_at_10": 0.012519809175974212,
+                "recall_at_10": 0.024004942193981114,
+                "delta_versus_active": {
+                  "delta": 0.0005507511580038652,
+                  "lower": 0.00029482409332562035,
+                  "upper": 0.0008248395379773958,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              }
+            }
+          },
+          "100": {
+            "questions_per_request": 100.0,
+            "answers_per_request": 0.2273409231312329,
+            "declared_positive_per_request": 0.20065895919748183,
+            "declared_negative_per_request": 0.026681963933751066,
+            "questions_per_answer": 439.87,
+            "columns": {
+              "gamma=0.0": {
+                "ndcg_at_10": 0.012429721888814452,
+                "recall_at_10": 0.024004942193981114,
+                "delta_versus_active": {
+                  "delta": 0.0004606638708441039,
+                  "lower": 0.00022415751151917638,
+                  "upper": 0.0007004149296364177,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              },
+              "gamma=1.0": {
+                "ndcg_at_10": 0.012839952063359632,
+                "recall_at_10": 0.024534462977671874,
+                "delta_versus_active": {
+                  "delta": 0.0008708940453892847,
+                  "lower": 0.000537366829930514,
+                  "upper": 0.0011720966602482377,
+                  "users": 13908,
+                  "draws": 1000
+                }
+              }
+            }
+          }
+        },
+        "local_cpu_request_ms_p95": 7.814099997631274,
+        "note": "answers come from the user's own observable rating of the asked item, and the target is never asked; gamma=0 uses only declared likes, gamma=1 also uses declared dislikes; the reported p95 covers one request scored across all ten budget-by-gamma cells"
+      },
+      "C4_experience_blend": {
+        "ndcg_at_10": 0.012522636660560403,
+        "recall_at_10": 0.02459329862030418,
+        "delta_versus_active": {
+          "delta": 0.0005535786425900548,
+          "lower": 6.24533094511394e-05,
+          "upper": 0.0010568063391051578,
+          "users": 13908,
+          "draws": 1000
+        },
+        "per_bucket": {
+          "0": {
+            "requests": 1288,
+            "active_ndcg_at_10": 0.011332410174538702,
+            "selected_alpha": 0.0,
+            "selected_ndcg_at_10": 0.011332410174538702
+          },
+          "1-2": {
+            "requests": 4379,
+            "active_ndcg_at_10": 0.014825025732793571,
+            "selected_alpha": 0.75,
+            "selected_ndcg_at_10": 0.014825025732793571
+          },
+          "3-5": {
+            "requests": 10919,
+            "active_ndcg_at_10": 0.013806235525604033,
+            "selected_alpha": 0.75,
+            "selected_ndcg_at_10": 0.013806235525604033
+          },
+          "6-19": {
+            "requests": 13468,
+            "active_ndcg_at_10": 0.011128340890895053,
+            "selected_alpha": 0.5,
+            "selected_ndcg_at_10": 0.01198996540228579
+          },
+          "20+": {
+            "requests": 3939,
+            "active_ndcg_at_10": 0.006784076261363834,
+            "selected_alpha": 0.5,
+            "selected_ndcg_at_10": 0.008615363359143289
+          }
+        },
+        "local_cpu_request_ms_p95": 2.653699993970804,
+        "note": "blend weight inferred from history size alone; alpha chosen per bucket on validation, so this arm is optimistic"
+      },
+      "C6_adjacent_surface": {
+        "donor_category": "Video_Games",
+        "ndcg_at_10": 0.011959777728593543,
+        "delta_versus_active": {
+          "delta": -9.280289376804893e-06,
+          "lower": -2.8193357672699783e-05,
+          "upper": 0.0,
+          "users": 13908,
+          "draws": 1000
+        },
+        "requests_with_adjacent_activity": 47,
+        "local_cpu_request_ms_p95": 1.509299996541813,
+        "share_of_requests": 0.0013826376018592063,
+        "note": "the donor surface is scored only where the request has nothing personalisable in its own history; a small cohort measures feasibility, not effect size"
+      }
+    },
+    "training": {
+      "rows": 427957,
+      "users": 54483,
+      "items": 22753,
+      "positive_rows": 367558
+    },
+    "validation": {
+      "rows": 41284,
+      "below_positive_threshold": 7291,
+      "seen_target_excluded": 0,
+      "new_item_targets": 3666,
+      "empty_history": 1288,
+      "eligible_requests": 33993,
+      "eligible_users": 13908
+    },
+    "routing_stats": {
+      "measured_by_arms": "route selection and C3, which score without a projection",
+      "unpersonalisable_requests": 1618,
+      "novice_route_requests": 1618,
+      "adjacent_route_requests": 0
+    },
+    "blend_selection_request_ms_p95": 2.570799995737616,
+    "timing_note": "every p95 is the local wall-clock time of scoring one validation request through that arm's own grid, single process, no concurrency; grid sizes differ between arms, so a figure compares an arm with its own grid, not arms with each other",
+    "elapsed_seconds": 678.8,
+    "source_sha256": {
+      "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+      "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac"
+    }
+  }
+}

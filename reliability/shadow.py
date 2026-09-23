@@ -1,13 +1,15 @@
 """Shadow profiles for the recommender.
 
-A shadow profile is whatever the system assembles beyond the history deliberately
-attached to the current request. Some of it is already held and needs no new user
-action: star ratings the positive-only pipeline discarded, history items missing from
-the train-known catalog, the size of a history, first-purchase behaviour of analogous
-users, and activity on an adjacent surface. The rest is elicited by a bounded
+A shadow profile is whatever the system assembles beyond the reviewed-item identifiers
+attached to the current request. Some evidence needs no new user action: star ratings
+and review times ignored by the active scorer, items beyond its history window, the
+size of a history, first-positive-review behaviour of other training users, and
+activity on an adjacent surface. The rest is probed by a bounded simulated
 interview, priced in questions instead of being hidden inside a score.
 
-All fitting uses training rows only. Elicited dislike can make a personalized score
+All model fitting uses training rows only. The simulated interview separately
+uses later recorded ratings as a hindsight answer oracle; these are not measured
+answers from a live respondent. Elicited dislike can make a personalized score
 negative, so the sparse candidate argument in ``core`` needs one extra step:
 ``ShadowRecommender.rank`` widens the base slice by the number of depressed
 candidates, and ``tests/test_shadow.py`` checks the result against a full-catalog
@@ -86,7 +88,7 @@ def novice_prior(positives, catalog):
     """Item distribution of each training user's first positive review.
 
     This is the derived prior for a request with nothing personal to rank from:
-    the aggregate first-purchase shape of comparable users, normalized like the
+    the aggregate first-positive-review distribution of training users, normalized like the
     popularity controls so blend weights stay on the same scale.
     """
     earliest: dict[str, tuple[int, str]] = {}
@@ -102,7 +104,7 @@ def novice_prior(positives, catalog):
 
 
 def interview_order(positives, depth: int = INTERVIEW_DEPTH):
-    """Most-reviewed catalogue items first: the questions likeliest to land."""
+    """Most often positively reviewed catalogue items first: the questions likeliest to land."""
     counts: Counter[str] = Counter(item for _, item, _ in positives)
     return tuple(item for item, _ in sorted(counts.items(), key=lambda row: (-row[1], row[0])))[:depth]
 
@@ -175,7 +177,7 @@ class ShadowRecommender:
         return attraction, repulsion
 
     def interview(self, user: str, target: str, known, budgets):
-        """Simulated interview over the most-reviewed catalogue items.
+        """Simulated interview over the most often positively reviewed catalogue items.
 
         Items already in the profile and the current target are never asked about, so
         an answer is never the label of the item being scored. An item the user has no
@@ -321,7 +323,7 @@ def score_requests(shadow: ShadowRecommender, queries, base_name: str, alphas, g
             stats["novice_route_requests"] += 1
         base_for_request = "novice" if novice_route else base_name
         seen = set(history)
-        asked, replies, interview_costs = (shadow.interview(user, target, attraction.keys() | repulsion.keys(),
+        asked, replies, interview_costs = (shadow.interview(user, target, set(history),
                                                             budgets) if ceiling
                                            else ([], [], {0: (0, 0, 0, 0)}))
         cursor = 0
@@ -447,7 +449,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
     novice_cells, _, novice_stats, novice_timing = score_requests(shadow, validation, baseline, (hybrid_alpha,),
                                                                   (0.0,), novice_for_cold=True)
     register("C3_novice_prior", novice_cells,
-             "first-purchase prior substituted where no personalisable history exists", timing=novice_timing)
+             "first-positive-review prior substituted where no personalisable history exists", timing=novice_timing)
 
     interview_cells, interview_costs, _, interview_timing = score_requests(
         shadow, validation, baseline, (hybrid_alpha,), (0.0, REPULSION_USED),
