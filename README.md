@@ -13,7 +13,7 @@ python -m unittest discover -s tests -v
 python -m reliability.server --port 8899
 ```
 
-Open `http://127.0.0.1:8899/`. The browser profiles and item names are invented. Compare baseline, challenger and active rankings, then click **Simulate challenger failure** to inspect the fallback. The synthetic gate stays closed because no real validation decision applies to those invented users. The service binds to loopback only. The same `web/` directory also runs as a static preview with no backend. Its GitHub Pages workflow remains undispatched while the demo is private.
+Open `http://127.0.0.1:8899/`. The browser profiles and item names are invented. Compare baseline, challenger and active rankings, then click **Simulate challenger failure** to inspect the fallback. The synthetic gate stays closed because no real validation decision applies to those invented users. The service binds to loopback only. The same `web/` directory also runs as a static preview with no backend. Its GitHub Pages workflow requires manual dispatch and has not been deployed.
 
 The API exposes `GET /api/health`, `GET /api/metrics`, and `POST /api/recommend` with a JSON body such as `{"history":["atlas","comet"],"k":5}`. Responses show the active route, shadow and baseline lists, fallback reason and local ranking time. No submitted history is logged or persisted. This is a local demonstrator rather than a hardened production service.
 
@@ -78,4 +78,4 @@ The 5-core dataset was retrospectively filtered using the full corpus; a review 
 | `web/` | Dependency-free synthetic browser demo with static fallback |
 | `tests/` | Exact-ranking, training-path, bundle and HTTP fallback checks |
 
-Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) is private for now, and there is no accepted paper. `CITATION.cff` names Ahnaf An Nafee for software citation.
+Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [public GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) contains source and aggregate results, but no review archives or fitted weights. There is no accepted paper. `CITATION.cff` names Ahnaf An Nafee for software citation.

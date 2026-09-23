@@ -23,7 +23,7 @@ The category test uses the same platform and dataset construction. It tests a ch
 
 ## Implementation failure and safeguard
 
-The first Video Games run returned the same ranking for all hybrid weights because the trained neighborhood serializer emitted `(similarity, item)` while retrieval expected `(item, similarity)`. The training-to-ranking regression test now requires a learned neighbor to change a ranking. The defective aggregate stays in ignored local runs and is not part of the public evidence. The corrected Video Games replay is exploratory; Musical Instruments is the only fresh-category check for this fixed method. The development history is retained in Conventional Commits rather than rewritten away.
+The first Video Games run returned the same ranking for all hybrid weights because the trained neighborhood serializer emitted `(similarity, item)` while retrieval expected `(item, similarity)`. The training-to-ranking regression test now requires a learned neighbor to change a ranking. The defective aggregate stays in ignored local runs and is not part of the public evidence. The corrected Video Games replay is exploratory; Musical Instruments is the only fresh-category check for this fixed method. The committed protocols and aggregate reports document the corrected evaluation.
 
 ## System demonstration
 
