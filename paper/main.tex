@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.82in]{geometry}
+\usepackage{amsmath,booktabs,microtype}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
+\setlength{\emergencystretch}{2em}
+\title{When Does Personalization Earn the Route?\\A Full-Catalog Temporal Study of Guarded Recommendation}
+\author{Ahnaf An Nafee}
+\date{22 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Offline recommendation gains can disappear when a model must retrieve from the full catalog rather than reorder previously observed items. We study a practical decision: whether a personalized challenger should replace a validation-selected popularity baseline. Using the global temporal splits of Amazon Reviews'23, we train popularity and co-review models only on earlier reviews, retain future targets absent from the training catalog as misses, and fix the route before reading test reviews. Video Games is an exploratory development category; Musical Instruments is a previously unopened category evaluated after the method was fixed. On 35,905 eligible Musical Instruments test requests, a co-review hybrid obtains 0.008681 NDCG@10 against 0.008007 for recent popularity. The paired difference is 0.000674, with a user-cluster bootstrap 95\% interval of [0.000040, 0.001338]. A later two-tower retriever improves on popularity when blended with it, but does not beat the active hybrid on validation and remains a shadow model. A local service exposes the chosen route, shadow ranking, and fallback behavior. The contribution is an auditable comparison and a guarded routing implementation, not a new recommendation algorithm or evidence of online impact.
+\end{abstract}
+
+\noindent\textbf{Keywords:} recommender systems; full-catalog evaluation; temporal split; model selection; neural retrieval; fallback routing
+
+\section{Introduction}
+Predicting a rating for an item a user chose to review is different from retrieving that item among thousands of products. The second task must account for products the user has not encountered, items unavailable to a model trained on earlier activity, and changes in the active population. Offline protocols that ignore the global timeline can distort model comparisons~\cite{ji2023leakage,gusak2025time}. We therefore evaluate retrieval against the training catalog under a global temporal split.
+
+The operational question is narrower than finding the strongest model in a benchmark: when does a personalized challenger have enough validation evidence to replace a simple route? We compare a train-only cosine co-review model blended with popularity against the better of lifetime and recent popularity. We then evaluate a compact two-tower retriever as a later challenger. Both personalized methods use established techniques. What matters in this study is that the candidate set, temporal boundary, selection rule, and fallback decision are visible together, including a case where the more complex model is declined.
+
+The held-out Musical Instruments result is positive but small in absolute terms. It is therefore useful as evidence that the fixed co-review route can transfer to another product category under the same benchmark, rather than evidence of a broadly superior recommender. The neural extension, designed after that category's test result was known, provides an exploratory model comparison and a concrete example of a validation gate remaining closed.
+
+\section{Related work}
+Global temporal evaluation is important when future interactions or future catalog information could reach training or selection~\cite{ji2023leakage,gusak2025time}. We use the owner-provided time split of Amazon Reviews'23~\cite{hou2026bridging,amazon5core} and freeze model fitting before the validation origin. The benchmark's 5-core filter is itself retrospective, however, so this procedure does not recreate an unfiltered production stream.
+
+Item co-occurrence, popularity controls, and two-tower retrieval are established recommendation tools. Deep candidate-generation systems have demonstrated the utility of learned user and item representations~\cite{covington2016youtube}; in-batch alternatives are a common training device for two-tower models~\cite{wang2021crossbatch}. Our neural experiment uses those ideas without claiming a novel architecture or negative-sampling method. The paper instead reports whether the trained challenger improves the route already selected by a simpler model.
+
+\section{Evaluation design}
+\subsection{Data, target, and catalog}
+We use the \texttt{timestamp\_w\_his} train, validation, and test files for Video Games and Musical Instruments in the Amazon Reviews'23 5-core benchmark~\cite{amazon5core}. The source supplies global cutoffs and each review's prior-item history. A rating of at least four defines a positive review. Each eligible positive validation or test review becomes one request whose target is the reviewed product; a target already in its supplied history is excluded. The candidate set is the full set of items observed in the training file, minus products in that request's prior history. A future target absent from the training catalog remains in the denominator and scores zero for every method.
+
+For a ranked list $R$ with one target $y$, NDCG@10 is $1/\log_2(r+1)$ when $y$ appears at one-based rank $r\leq10$, and zero otherwise. We average this request-level value over the eligible cohort. This measures recovery of later positive reviews from the frozen training catalog. Reviews do not record which products a user saw, so the metric is not an exposure-adjusted engagement estimate.
+
+\subsection{Models and validation decision}
+The baseline scores each train-known item by either its lifetime count of positive training reviews or its count in the 365 days before the training cutoff. Counts are transformed by $\log(1+x)$ and normalized by the largest count in that version of the model. Validation NDCG@10 chooses between these two controls. The co-review model takes each training user's last 20 distinct positive items, counts shared users for item pairs, divides by the geometric mean of item frequencies, and keeps at most 50 neighbors per item. At a request, similarity contributions from the last 20 distinct history items are summed for eligible neighbors. The challenger uses $(1-\alpha)$ times the selected popularity score plus $\alpha$ times this co-review score, with $\alpha\in\{0.25,0.5,0.75,1.0\}$ selected on validation.
+
+Before test rows are opened, a paired user-cluster bootstrap with 1,000 draws estimates the validation difference between the best challenger and its baseline. The route opens only if the lower endpoint of the percentile 95\% interval is positive. Test reporting uses the saved selection and the same paired bootstrap procedure; the interval conditions on fitted models and one fixed test period. This gate is an operational rule, not a guarantee of future superiority. Sparse neighbor scoring produces the same top ten as scanning the train-known catalog because items without a neighbor adjustment retain their baseline order; exact-ranking tests check that property.
+
+Video Games supplied the development evidence. Its reported replay is exploratory because the implementation was corrected during that phase. The corrected method and a training-to-ranking regression check were fixed before acquiring Musical Instruments, whose category test is the fresh check for this method. Both categories come from one platform and one benchmark construction.
+
+\section{Results}
+\begin{table}[ht]
+\centering
+\caption{Full-catalog test quality. The paired interval is for hybrid minus the validation-selected popularity baseline. Video Games is exploratory; Musical Instruments is the fixed-method category check.}
+\label{tab:quality}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Category & Requests & Catalog & Popularity & Hybrid \\
+\midrule
+Video Games & 35,562 & 22,976 & 0.007151 & 0.010172 \\
+Musical Instruments & 35,905 & 22,753 & 0.008007 & 0.008681 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both categories selected recent popularity and a hybrid weight of 0.75 on validation. In Musical Instruments, the 35,905 eligible test requests came from 11,648 users. The hybrid-minus-baseline NDCG@10 difference was 0.000674 [0.000040, 0.001338], and Recall@10 moved from 0.015903 to 0.017184. The interval excludes zero under the specified user resampling scheme, though its lower endpoint is close to zero. Video Games produced a larger exploratory difference of 0.003020 [0.002216, 0.003881] on 35,562 requests; that replay is not an independent confirmation.
+
+Catalog coverage helps explain the low absolute scores. In Musical Instruments, 12,305 eligible test targets were absent from the 22,753-item training catalog. Video Games had 22,051 such targets among 35,562 requests. No reordering of train-known items can recover those requests. The measured hybrid gain thus sits inside a larger coverage limitation, and the test cannot establish that a user would engage with any recommended product.
+
+\subsection{Neural challenger}
+The later experiment trains a two-tower retriever on 313,522 chronological pairs from positive Musical Instruments training reviews. A query tower pools embeddings of up to 20 prior distinct positive items and applies a small residual multilayer perceptron; an item tower embeds training products. Both towers produce normalized 64-dimensional vectors. Training uses three epochs of in-batch softmax at temperature 0.15, masking duplicate targets and products already known positive for a query so they are not treated as negatives. The learned model scores the train-known item array exactly, while items without positive training support are ineligible for its neural route. Requests without a supported history fall back to popularity.
+
+On validation, the unblended neural model scored 0.001411 NDCG@10. Selecting a blend of 40\% neural score and 60\% recent popularity raised it to 0.011774, above recent popularity's 0.010715 but below the active co-review hybrid's 0.011969. The paired neural-minus-hybrid validation difference was $-0.000195$ [$-0.000985$, 0.000611], so the stronger-challenger gate remained closed. On the already studied test period, the blend scored 0.008357 against 0.008681 for the hybrid. Since this model was designed after exposure to that period, the test comparison is exploratory and does not add a second fresh confirmation.
+
+\section{Guarded service and reproducibility}
+The public implementation serves baseline, co-review shadow, optional neural shadow, active ranking, and an explicit fallback reason through a loopback HTTP API. A saved validation decision determines the active route. Empty or unsupported histories and challenger failures return the popularity baseline. A local model bundle checks its source hash before serving; optional neural weights and their training source are checked as well. A synthetic browser walkthrough illustrates these decisions with invented users and product names. Its controls do not alter the measured results.
+
+The measured in-process Python ranking p95 was 0.611 ms for the corrected Video Games replay and 0.760 ms for Musical Instruments, including baseline and co-review challenger scoring but excluding HTTP, loading, concurrency, and network time. The neural batch-ranking timing has a different scope and is not a like-for-like service latency comparison. The repository contains source, protocols, aggregate JSON results, and tests at \url{https://github.com/ahnafnafee/recommendation-decision-lab}. Downloaded review files, row-level predictions, and fitted weights are not redistributed. The dataset remains available from its owner subject to the owner's terms~\cite{amazon5core}.
+
+\section{Limitations and conclusion}
+The 5-core subset was formed using support across the full corpus, which retrospectively selects users and products. Review activity is not an impression, purchase, or unbiased preference label. Our user-cluster intervals hold the fitted models and temporal period fixed and do not account for shared-item dependence, model refitting, selection across methods, or future regimes. The second category tests a different product domain within the same platform, not transfer to a new service. The neural route was assessed after the category test was known, and one compact architecture does not exhaust learned retrieval methods.
+
+Within those limits, the fixed co-review hybrid beat a validation-selected popularity baseline by a small margin in Musical Instruments. The later neural blend improved on popularity but did not earn the active route. Together, the experiments show why a recommendation system should report the baseline it would actually use, evaluate the catalog it can actually retrieve, and retain a clear fallback when additional model capacity lacks sufficient evidence.
+
+\begin{thebibliography}{9}
+\bibitem{amazon5core} McAuley Lab. \emph{Amazon Reviews'23: Pure IDs (5-Core)}. \url{https://amazon-reviews-2023.github.io/data_processing/5core.html}.
+\bibitem{hou2026bridging} Y. Hou, J. Li, X. Fu, Z. He, A. Yan, X. Chen, and J. McAuley. Bridging Language and Items for Retrieval and Recommendation: Benchmarking LLMs as Semantic Encoders. \emph{arXiv:2403.03952}, version 2, 2026. \url{https://arxiv.org/abs/2403.03952}.
+\bibitem{ji2023leakage} Y. Ji, A. Sun, J. Zhang, and C. Li. A Critical Study on Data Leakage in Recommender System Offline Evaluation. \emph{ACM Transactions on Information Systems}, 41(3), Article 75, 2023. \url{https://doi.org/10.1145/3569930}.
+\bibitem{gusak2025time} D. Gusak, A. Volodkevich, A. Klenitskiy, A. Vasilev, and E. Frolov. Time to Split: Exploring Data Splitting Strategies for Offline Evaluation of Sequential Recommenders. In \emph{Proceedings of RecSys '25}, pp. 874--883, 2025. \url{https://doi.org/10.1145/3705328.3748164}.
+\bibitem{covington2016youtube} P. Covington, J. Adams, and E. Sargin. Deep Neural Networks for YouTube Recommendations. In \emph{Proceedings of RecSys '16}, pp. 191--198, 2016. \url{https://doi.org/10.1145/2959100.2959190}.
+\bibitem{wang2021crossbatch} J. Wang, J. Zhu, and X. He. Cross-Batch Negative Sampling for Training Two-Tower Recommenders. In \emph{Proceedings of SIGIR '21}, 2021. \url{https://doi.org/10.1145/3404835.3463032}.
+\end{thebibliography}
+
+\end{document}

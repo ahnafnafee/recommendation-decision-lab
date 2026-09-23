@@ -58,6 +58,10 @@ The first command saves fitted weights and a hash-checked manifest only in ignor
 
 The [exploratory neural extension](reports/neural_extension.md) records the measured result. On Musical Instruments, the calibrated neural blend beat recent popularity but did not beat the existing co-review hybrid, so its stronger-challenger gate stayed closed. This category's test period was already known from the earlier study; the extension is a model-development comparison, not a new independent confirmation. The synthetic browser demo remains separate from fitted review-derived weights.
 
+## Manuscript
+
+The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
+
 ## What this demonstrates
 
 - A validation-selected transparent control and a challenger evaluated over the entire train-known catalog, with unseen future items retained as misses.
@@ -75,7 +79,8 @@ The 5-core dataset was retrospectively filtered using the full corpus; a review 
 | `reliability/` | Training, full-catalog evaluation, bundle verification and local service |
 | `protocol/` | Designs committed before the corresponding category outcome |
 | `reports/` | Public-safe aggregates and research interpretation |
+| `paper/` | Manuscript PDF, source and build instructions |
 | `web/` | Dependency-free synthetic browser demo with static fallback |
 | `tests/` | Exact-ranking, training-path, bundle and HTTP fallback checks |
 
-Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [public GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) contains source and aggregate results, but no review archives or fitted weights. There is no accepted paper. `CITATION.cff` names Ahnaf An Nafee for software citation.
+Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [public GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) contains source, the manuscript and aggregate results, but no review archives or fitted weights. The paper has no claimed conference or journal acceptance. `CITATION.cff` names Ahnaf An Nafee for software citation.

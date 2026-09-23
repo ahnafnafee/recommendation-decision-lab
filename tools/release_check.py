@@ -12,7 +12,7 @@ ROOT_FILES = {".gitignore", ".gitattributes", "README.md", "DATA_LICENSE.md", "L
               "CITATION.cff", "pyproject.toml"}
 EXACT = {"web/index.html", "web/app.js", "web/demo_bundle.json",
          ".github/workflows/verify.yml", ".github/workflows/pages.yml",
-         "tools/release_check.py"}
+         "tools/release_check.py", "paper/main.tex", "paper/main.pdf", "paper/README.md"}
 FORBIDDEN_JSON_KEYS = {"user_id", "parent_asin", "history", "target", "ranked", "weights", "model"}
 
 
@@ -49,6 +49,9 @@ def main():
         path = ROOT / relative
         if not allowed(relative) or not path.is_file() or path.is_symlink():
             raise ValueError(f"file outside public allowlist: {relative}")
+        if relative == "paper/main.pdf" and (path.stat().st_size > 2_000_000 or
+                                             not path.read_bytes().startswith(b"%PDF-")):
+            raise ValueError("invalid manuscript PDF")
         if relative.startswith("reports/") and relative.endswith(".json"):
             if path.stat().st_size > 200_000:
                 raise ValueError(f"aggregate too large: {relative}")
