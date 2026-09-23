@@ -1,0 +1,132 @@
+{
+  "experiment": "Musical_Instruments calibrated neural retrieval (exploratory)",
+  "source_sha256": {
+    "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+    "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac",
+    "test": "ceef5e289000a6ef77fe83a590a0168973689c19f89cb52a24defcf6a0924d30"
+  },
+  "validation_decision": {
+    "category": "Musical_Instruments",
+    "baseline_method": "recent",
+    "blend_alpha": 0.4,
+    "candidate_ndcg": {
+      "0.05": {
+        "ndcg_at_10": 0.010741433460971598,
+        "recall_at_10": 0.021533845203424235
+      },
+      "0.1": {
+        "ndcg_at_10": 0.010835905141800129,
+        "recall_at_10": 0.021828023416585768
+      },
+      "0.2": {
+        "ndcg_at_10": 0.01106302894798269,
+        "recall_at_10": 0.022386962021592682
+      },
+      "0.4": {
+        "ndcg_at_10": 0.011774488475557541,
+        "recall_at_10": 0.024122613479245728
+      },
+      "1.0": {
+        "ndcg_at_10": 0.0014111049429413264,
+        "recall_at_10": 0.0028241108463507194
+      }
+    },
+    "baseline": {
+      "ndcg_at_10": 0.010715246051127945,
+      "recall_at_10": 0.02150442738210808
+    },
+    "neural_with_fallback": {
+      "ndcg_at_10": 0.011774488475557541,
+      "recall_at_10": 0.024122613479245728
+    },
+    "neural_minus_baseline": {
+      "delta": 0.001059242424429596,
+      "lower": 0.0007859032571438533,
+      "upper": 0.0013440805146238445,
+      "users": 13908,
+      "draws": 1000
+    },
+    "gate_open": false,
+    "hybrid_alpha": 0.75,
+    "hybrid_gate_open": true,
+    "hybrid": {
+      "ndcg_at_10": 0.011969058017970349,
+      "recall_at_10": 0.023151825375812667
+    },
+    "neural_minus_active": {
+      "delta": -0.0001945695424128066,
+      "lower": -0.0009847335938304197,
+      "upper": 0.0006114541551968818,
+      "users": 13908,
+      "draws": 1000
+    },
+    "validation": {
+      "rows": 41284,
+      "below_positive_threshold": 7291,
+      "seen_target_excluded": 0,
+      "new_item_targets": 3666,
+      "empty_history": 1288,
+      "eligible_requests": 33993,
+      "eligible_users": 13908
+    },
+    "fallback_requests": 1617,
+    "weights_sha256": "97b31b6dcf5511691ceb1db4c8ad3bdea777fa82ac1b81875754fc29701a8971",
+    "source_sha256": {
+      "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+      "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac"
+    }
+  },
+  "test": {
+    "cohort": {
+      "rows": 42595,
+      "below_positive_threshold": 6690,
+      "seen_target_excluded": 0,
+      "new_item_targets": 12305,
+      "empty_history": 1186,
+      "eligible_requests": 35905,
+      "eligible_users": 11648
+    },
+    "baseline": {
+      "ndcg_at_10": 0.008007053676229099,
+      "recall_at_10": 0.015903077565798635
+    },
+    "hybrid": {
+      "ndcg_at_10": 0.008681159647990063,
+      "recall_at_10": 0.01718423617880518
+    },
+    "neural_with_fallback": {
+      "ndcg_at_10": 0.008357299458269333,
+      "recall_at_10": 0.01693357471104303
+    },
+    "active_route": {
+      "ndcg_at_10": 0.008681159647990063,
+      "recall_at_10": 0.01718423617880518
+    },
+    "neural_minus_baseline": {
+      "delta": 0.0003502457820402337,
+      "lower": 0.00013380071177797385,
+      "upper": 0.000587544107268674,
+      "users": 11648,
+      "draws": 1000
+    },
+    "neural_minus_prior_active": {
+      "delta": -0.00032386018972073053,
+      "lower": -0.001014431933481883,
+      "upper": 0.0003041038580594207,
+      "users": 11648,
+      "draws": 1000
+    },
+    "fallback_requests": 3768,
+    "local_batch_rank_ms_per_request": {
+      "p50": 0.5548242187387586,
+      "p95": 0.7720125000219014,
+      "scope": "batched exact score calculation; excludes model load and HTTP"
+    }
+  },
+  "limitations": [
+    "Exploratory: model design followed prior exposure to this category test period",
+    "5-core selection uses full-corpus support",
+    "review activity is not exposure or online utility",
+    "one fixed temporal split"
+  ]
+}

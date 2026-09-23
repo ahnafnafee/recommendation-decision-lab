@@ -45,7 +45,7 @@ def demo_model():
 class RecommendationApp:
     def __init__(self, model: Recommender, baseline: str = "recent", alpha: float = .75,
                  gate_open: bool = False, titles: dict[str, str] | None = None,
-                 label: str = "invented demo"):
+                 label: str = "invented demo", neural=None, neural_gate_open: bool = False):
         if baseline not in ("lifetime", "recent") or not 0 <= alpha <= 1:
             raise ValueError("invalid serving decision")
         self.model = model
@@ -54,6 +54,8 @@ class RecommendationApp:
         self.gate_open = gate_open
         self.titles = titles or {}
         self.label = label
+        self.neural = neural
+        self.neural_gate_open = neural_gate_open
         self.counts = Counter()
         self.latencies = deque(maxlen=1000)
         self.lock = Lock()
@@ -66,6 +68,8 @@ class RecommendationApp:
         started = perf_counter()
         baseline_items = self.model.top_k(history, self.baseline, 0.0, k)
         shadow = ()
+        neural_shadow = ()
+        neural_fallback = None
         fallback = None
         try:
             if simulate_failure:
@@ -73,6 +77,17 @@ class RecommendationApp:
             shadow = self.model.top_k(history, self.baseline, self.alpha, k)
         except Exception:
             fallback = "challenger_unavailable"
+        if self.neural is not None:
+            try:
+                if simulate_failure:
+                    raise RuntimeError("demonstrated challenger failure")
+                neural_result = self.neural.top_k(history, k)
+                if neural_result is None:
+                    neural_fallback = "unsupported_history"
+                else:
+                    neural_shadow = neural_result
+            except Exception:
+                neural_fallback = "neural_unavailable"
         if not self.gate_open:
             fallback = fallback or "validation_gate_closed"
         elif not history:
@@ -81,16 +96,22 @@ class RecommendationApp:
             fallback = fallback or "unsupported_history"
         method = "hybrid" if self.gate_open and history and fallback is None else self.baseline
         active_items = shadow if method == "hybrid" else baseline_items
+        if self.neural_gate_open and neural_shadow and neural_fallback is None:
+            method, active_items = "neural", neural_shadow
+            fallback = None
         elapsed_ms = (perf_counter() - started) * 1000
         with self.lock:
             self.counts["requests"] += 1
-            self.counts["hybrid_routes" if method == "hybrid" else "baseline_routes"] += 1
-            if fallback:
+            route_count = "neural_routes" if method == "neural" else "hybrid_routes" if method == "hybrid" else "baseline_routes"
+            self.counts[route_count] += 1
+            if fallback or neural_fallback:
                 self.counts["fallbacks"] += 1
             self.latencies.append(elapsed_ms)
         decorate = lambda items: [{"id": item, "title": self.titles.get(item, item)} for item in items]
         return {"active": decorate(active_items), "baseline": decorate(baseline_items),
-                "shadow": decorate(shadow), "method": method, "fallback": fallback,
+                "shadow": decorate(shadow), "neural_shadow": decorate(neural_shadow),
+                "neural_gate_open": self.neural_gate_open, "neural_fallback": neural_fallback,
+                "method": method, "fallback": fallback,
                 "gate_open": self.gate_open, "alpha": self.alpha,
                 "data_scope": self.label, "local_rank_ms": round(elapsed_ms, 3)}
 
@@ -164,9 +185,15 @@ def main():
     parser.add_argument("--bundle", type=Path)
     parser.add_argument("--aggregate", type=Path)
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--neural-weights", type=Path)
+    parser.add_argument("--neural-aggregate", type=Path)
+    parser.add_argument("--neural-train", type=Path)
     args = parser.parse_args()
     if bool(args.bundle) != bool(args.aggregate):
         parser.error("--bundle and --aggregate must be supplied together")
+    if any((args.neural_weights, args.neural_aggregate, args.neural_train)) and not all(
+            (args.neural_weights, args.neural_aggregate, args.neural_train, args.bundle)):
+        parser.error("neural weights, aggregate, train archive, and base bundle must be supplied together")
     if args.bundle:
         model, manifest = load_bundle(args.bundle)
         aggregate = json.loads(args.aggregate.read_text(encoding="utf-8"))
@@ -177,6 +204,20 @@ def main():
             raise ValueError("model source and evaluation source differ")
         app = RecommendationApp(model, decision["baseline"], decision["challenger_alpha"],
                                 decision["gate_open"], label=manifest["category"] + " local research model")
+        if args.neural_weights:
+            from .neural import load_retriever
+            neural, neural_manifest = load_retriever(args.neural_weights, args.neural_train)
+            neural_aggregate = json.loads(args.neural_aggregate.read_text(encoding="utf-8"))
+            neural_decision = neural_aggregate["validation_decision"]
+            if (neural_decision["category"] != manifest["category"] or
+                    neural_decision["source_sha256"]["train"] != neural_manifest["train_sha256"] or
+                    neural_aggregate["source_sha256"]["train"] != neural_manifest["train_sha256"] or
+                    neural_decision["weights_sha256"] != neural_manifest["weights_sha256"]):
+                raise ValueError("neural model and evaluation source differ")
+            scores = model.recent if neural_decision["baseline_method"] == "recent" else model.lifetime
+            neural.configure_blend(scores, neural_decision["blend_alpha"])
+            app.neural = neural
+            app.neural_gate_open = bool(neural_decision["gate_open"])
     else:
         app = RecommendationApp(demo_model(), titles=TITLES)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler_factory(app)) as server:

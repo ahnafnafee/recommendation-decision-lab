@@ -87,6 +87,23 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, 400)
         caught.exception.close()
 
+    def test_neural_shadow_is_separate_from_active_route_and_can_fallback(self):
+        class StubRetriever:
+            def top_k(self, history, k):
+                return ("orbit", "signal")[:k] if history else None
+
+        self.app.neural = StubRetriever()
+        shadowed = self.post({"history": ["atlas"], "k": 2})
+        self.assertEqual([item["id"] for item in shadowed["neural_shadow"]], ["orbit", "signal"])
+        self.assertEqual(shadowed["method"], "hybrid")
+        self.app.neural_gate_open = True
+        promoted = self.post({"history": ["atlas"], "k": 2})
+        self.assertEqual(promoted["method"], "neural")
+        self.assertEqual(promoted["active"], promoted["neural_shadow"])
+        cold = self.post({"history": []})
+        self.assertNotEqual(cold["method"], "neural")
+        self.assertEqual(cold["neural_fallback"], "unsupported_history")
+
 
 if __name__ == "__main__":
     unittest.main()

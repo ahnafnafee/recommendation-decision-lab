@@ -9,5 +9,8 @@ description = "Guarded recommendation evaluation and local serving demonstrator"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+neural = ["torch>=2.11,<3", "numpy>=2,<3"]
+
 [tool.setuptools.packages.find]
 include = ["reliability*"]
