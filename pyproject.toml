@@ -24,6 +24,12 @@ classifiers = [
 ]
 dependencies = []
 
+[project.urls]
+Homepage = "https://github.com/ahnafnafee/recommendation-decision-lab"
+Repository = "https://github.com/ahnafnafee/recommendation-decision-lab"
+Issues = "https://github.com/ahnafnafee/recommendation-decision-lab/issues"
+Changelog = "https://github.com/ahnafnafee/recommendation-decision-lab/blob/master/CHANGELOG.md"
+
 [project.optional-dependencies]
 neural = ["torch>=2.11,<3", "numpy>=2,<3"]
 language = ["sentence-transformers>=6,<7", "numpy>=2,<3"]

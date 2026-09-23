@@ -142,7 +142,8 @@ identifier beside each claim, and repeat every URL in a Sources list at the end.
 | `data/text/` | Product listings, review prose and published query pairs you fetch locally, plus the embedding artifacts built from them; Git-ignored |
 | `web/` | Dependency-free synthetic browser demo with static fallback |
 | `tests/` | Exact-ranking, training-path, bundle, HTTP-fallback, phrase-parsing, negative-evidence retrieval and corpus-integrity checks |
+| `.github/` | CI workflow and issue and pull request templates |
 
-[ARCHITECTURE.md](ARCHITECTURE.md) explains the module contracts and where the optional dependencies load, [API.md](API.md) documents every request field, response field, counter and startup flag, [CONTRIBUTING.md](CONTRIBUTING.md) covers environment setup and the conventions the committed numbers depend on, and [CHANGELOG.md](CHANGELOG.md) records what changed.
+[ARCHITECTURE.md](ARCHITECTURE.md) explains the module contracts and where the optional dependencies load, [API.md](API.md) documents every request field, response field, counter and startup flag, [CONTRIBUTING.md](CONTRIBUTING.md) covers environment setup and the conventions the committed numbers depend on, [CHANGELOG.md](CHANGELOG.md) records what changed, [SECURITY.md](SECURITY.md) states what the demo service does and does not send, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) covers how contributions land.
 
 Original source, tests and documentation use the [MIT license](LICENSE). Dataset records, fitted weights and owner metadata are outside that license; see [data permissions](DATA_LICENSE.md). The [public GitHub repository](https://github.com/ahnafnafee/recommendation-decision-lab) contains source, the manuscript and aggregate results, but no review archives or fitted weights. The paper has no claimed conference or journal acceptance. `CITATION.cff` names Ahnaf An Nafee for software citation.
