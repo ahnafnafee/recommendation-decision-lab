@@ -42,6 +42,9 @@ collected at the top.
 - `ARCHITECTURE.md`, `API.md`, `CONTRIBUTING.md` and this file.
 - `reports/phrase_to_products.md` (protocol, wording conditions, reach table) and
   `reports/phrase_to_products_survey.md` (the literature trail behind the design).
+- `SECURITY.md`, which states what the demo service binds to, what it writes and its one
+  outbound call; `CODE_OF_CONDUCT.md`; issue and pull request templates; and `[project.urls]`
+  in `pyproject.toml` naming the repository, the issue tracker and this changelog.
 - Four further literature surveys, one per remaining component, each listing only sources
   whose arXiv page or published page was opened and repeating every URL in a Sources list:
   `reports/survey_dense_retrieval.md` (the encoded route and the calibration gate),
@@ -62,6 +65,22 @@ collected at the top.
 - `tools/release_check.py` allowlists the new root documents.
 - The repository map and the demo section of `README.md` cover the wording route and the
   locally fetched corpus.
+
+### Fixed
+
+- The shadow audit had counted one number for two different things: history slots with no
+  user–item rating in training and history slots whose item is absent from the training
+  catalog. `tools/signal_audit.py` now reports them separately — on Musical Instruments
+  validation, 96,984 slots lack a user–item training rating, 20,310 of those absent from the
+  catalog — and `reliability/shadow.py` no longer offers to ask about items the supplied
+  history already carries. The Musical Instruments validation probe was rerun with the
+  corrected simulator: the two already-held arms beat the active route by 0.000449
+  (repulsion) and 0.000466 (graded decay and age) NDCG@10, with intervals that are
+  post-selection and exploratory; the first-positive-review prior loses (−0.000145), and the
+  simulated interview is reported as a hindsight-oracle sensitivity analysis that needs
+  about 440 questions per recorded answer at its largest budget, replacing the 248 in the
+  entry below. `reports/musical_shadow_exploratory.json` and `reports/signal_audit.json` are
+  the rerun aggregates, and the manuscript describes the interview accordingly.
 
 ## 2026-09-23
 
