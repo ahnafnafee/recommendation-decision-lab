@@ -35,8 +35,18 @@ class RankingTests(unittest.TestCase):
                                    ("u2", "a", 2), ("u2", "b", 3)], {"a", "b", "c"}, 10)
         self.assertEqual(model.lifetime["c"], 0.0)
         self.assertEqual(model.top_k(("a",), k=2)[0], "b")
+        self.assertEqual(model.neighbors["a"][0][0], "b")
+        self.assertGreater(model.neighbors["a"][0][1], 0)
         with self.assertRaises(ValueError):
             Recommender.train([("u", "a", 10)], {"a"}, 10)
+
+    def test_trained_neighbors_change_personalized_ranking(self):
+        events = [(f"u{index}", "a", 1) for index in range(5)]
+        events += [(f"u{index}", "b", 2) for index in range(5)]
+        events += [(f"v{index}", "c", 3) for index in range(8)]
+        model = Recommender.train(events, {"a", "b", "c"}, 10)
+        self.assertEqual(model.top_k(("a",), alpha=0, k=1), ("c",))
+        self.assertEqual(model.top_k(("a",), alpha=1, k=1), ("b",))
 
     def test_target_metric(self):
         self.assertEqual(ndcg_one_target(("a", "b"), "a"), 1.0)

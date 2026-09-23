@@ -44,7 +44,8 @@ def top_neighbors(user_positives: dict[str, list[tuple[int, str]]], limit: int =
                 heappush(heap, entry)
             elif entry > heap[0]:
                 heapreplace(heap, entry)
-    return ({item: tuple(sorted(heap, key=lambda pair: (-pair[0], pair[1])))
+    return ({item: tuple((destination, similarity)
+                         for similarity, destination in sorted(heap, key=lambda pair: (-pair[0], pair[1])))
              for item, heap in heaps.items()}, dict(item_users))
 
 

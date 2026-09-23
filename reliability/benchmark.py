@@ -19,7 +19,7 @@ from .core import Recommender, ndcg_one_target
 T1 = 1628643414042
 T2 = 1658002729837
 ALPHAS = (0.25, 0.5, 0.75, 1.0)
-FILES = {split: f"Video_Games.{split}.csv.gz" for split in ("train", "valid", "test")}
+SPLITS = ("train", "valid", "test")
 SOURCE = "https://amazon-reviews-2023.github.io/data_processing/5core.html"
 
 
@@ -138,12 +138,14 @@ def percentile(values, fraction):
     return ordered[int(fraction * (len(ordered) - 1))]
 
 
-def run(data: Path, destination: Path):
+def run(data: Path, destination: Path, category: str = "Video_Games"):
+    if category not in ("Video_Games", "Musical_Instruments"):
+        raise ValueError("category is outside the committed study design")
     if destination.exists():
         raise FileExistsError("run directory exists; retain prior evidence")
-    paths = {split: data / name for split, name in FILES.items()}
+    paths = {split: data / f"{category}.{split}.csv.gz" for split in SPLITS}
     if any(not path.is_file() for path in paths.values()):
-        raise FileNotFoundError("download all three official Video_Games timestamp split archives")
+        raise FileNotFoundError(f"download all three official {category} timestamp split archives")
     destination.mkdir(parents=True)
     hashes = {split: file_hash(paths[split]) for split in ("train", "valid")}
     positives, catalog, train_stats = training_data(paths["train"])
@@ -183,7 +185,7 @@ def run(data: Path, destination: Path):
                     "local_cpu_request_ms": {"p50": percentile(timing_ms, .5),
                                              "p95": percentile(timing_ms, .95),
                                              "scope": "Python ranking of baseline and challenger; no HTTP, initialization, or disk loading"}}
-    aggregate = {"source": SOURCE, "experiment": "Video_Games 5-core global temporal split",
+    aggregate = {"source": SOURCE, "experiment": f"{category} 5-core global temporal split",
                  "source_sha256": hashes,
                  "validation_decision": decision, "test": test_results,
                  "limitations": ["5-core selection uses full-corpus support", "review activity is not exposure or online utility",
@@ -199,8 +201,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", type=Path, default=Path("data"))
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--category", choices=("Video_Games", "Musical_Instruments"), default="Video_Games")
     args = parser.parse_args()
-    run(args.data, args.output)
+    run(args.data, args.output, args.category)
 
 
 if __name__ == "__main__":

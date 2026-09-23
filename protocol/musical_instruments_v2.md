@@ -1,0 +1,7 @@
+# Musical Instruments confirmation: protocol v2
+
+Fixed 22 September 2026 before acquiring or opening Musical_Instruments rows. Video_Games is now exploratory: its first test replay used a defective neighbor tuple order, and that result is invalid. The defect was corrected and a training-to-ranking regression test added. The corrected Video_Games replay may inform development but will not be called fresh confirmation.
+
+Use the same McAuley Lab Amazon Reviews'23 5-core `timestamp_w_his` global temporal split and the same cutoffs, labels, full train-known catalog, repeat/new-item accounting, popularity controls, train-only top-50 cosine co-review neighbors, alpha grid, validation selection, paired user bootstrap gate, and test report defined in `video_games_v1.md`. No additional feature or hyperparameter changes are planned after this version. Evaluate `Musical_Instruments` once after the fixed implementation passes tests. This is a second item category from the same platform, not independent-platform transfer. Its 5-core filtering uses future corpus support, so conclusions remain conditional on that selected subset.
+
+Success means the validation-gated route produces a positive test NDCG@10 difference whose paired user-cluster 95% interval excludes zero, compared with the validation-selected popularity baseline. Any other result is negative or inconclusive. Report the ungated challenger regardless and keep the exact denominators. Do not assert novelty, causality, online engagement, or conference readiness solely from this test.
