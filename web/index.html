@@ -42,7 +42,7 @@
   </style>
 </head>
 <body>
-  <header><div class="brand">RECOMMENDATION / DECISION LAB</div><span class="badge">Local demonstrator</span></header>
+  <header><div class="brand">RECOMMENDATION / DECISION LAB</div><span class="badge">Synthetic demonstrator</span></header>
   <main>
     <section class="hero">
       <div><div class="eyebrow">Ahnaf An Nafee · research systems</div><h1>A recommendation should earn its place.</h1><p>Compare a transparent popularity fallback with a personalized challenger. The active route follows a validation decision; a failed or unsupported challenger falls back without hiding what happened.</p></div>
@@ -63,20 +63,6 @@
     <section class="reading"><div><div class="eyebrow">Evidence boundary</div><h2>What the numbers say</h2><p>The Video Games challenger improved NDCG@10 from 0.00715 to 0.01017 in a corrected exploratory replay. In the untouched Musical Instruments category it rose from 0.00801 to 0.00868. Absolute scores remain low, and new catalog items account for many misses. The conditional interval on Musical Instruments barely excludes zero.</p></div><div><div class="eyebrow">System boundary</div><h2>What the demo proves</h2><p>This loopback service supports a real locally trained bundle, reports route and fallback reasons, exposes health and aggregate request metrics, and never writes submitted histories to a log. The in-browser profiles are synthetic. Local ranking time is not a production latency claim.</p><p id="metrics">No requests yet.</p></div></section>
   </main>
   <footer>Ahnaf An Nafee · Source and reproducibility instructions are in the repository. Dataset rows, review histories, and fitted weights are not included.</footer>
-  <script>
-    const $ = id => document.getElementById(id);
-    let selected = 'cosmic', profiles = {};
-    function renderList(id, rows) { $(id).replaceChildren(...rows.map(row => { const li=document.createElement('li'); li.textContent=row.title; return li; })); }
-    async function refreshMetrics(){ const response=await fetch('/api/metrics'); const data=await response.json(); $('metrics').textContent=`Local requests: ${data.counts.requests||0} · fallbacks: ${data.counts.fallbacks||0} · in-process p95: ${data.local_rank_ms.p95??'—'} ms`; }
-    async function compare(simulateFailure=false){
-      const history=$('history').value.split(',').map(v=>v.trim()).filter(Boolean);
-      $('status').textContent='Ranking…';
-      try { const response=await fetch('/api/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({history,k:5,simulate_failure:simulateFailure})}); const data=await response.json(); if(!response.ok) throw new Error(data.error); renderList('baseline',data.baseline);renderList('shadow',data.shadow);renderList('active',data.active); $('status').innerHTML=''; const strong=document.createElement('strong'); strong.textContent=data.method==='hybrid'?'Challenger active':'Baseline active'; $('status').append(strong,document.createTextNode(` · ${data.fallback?.replaceAll('_',' ')||'validation gate passed'} · ${data.data_scope} · ${data.local_rank_ms} ms local ranking`)); $('route-explanation').textContent=data.fallback?`Fallback reason: ${data.fallback.replaceAll('_',' ')}.`:'Validation-approved challenger for this local model.'; await refreshMetrics(); } catch(error) { $('status').textContent=`Request failed: ${error.message}`; }
-    }
-    async function start(){
-      try { const response=await fetch('/api/profiles'); if(response.ok){ const data=await response.json(); profiles=data.profiles; for(const [name,items] of Object.entries(profiles)){const button=document.createElement('button');button.className='choice'+(name===selected?' active':'');button.textContent=name[0].toUpperCase()+name.slice(1);button.onclick=()=>{selected=name;document.querySelectorAll('.choice').forEach(b=>b.classList.remove('active'));button.classList.add('active');$('history').value=items.join(', ');compare();};$('profiles').append(button);} $('history').value=profiles[selected].join(', '); } else { $('status').textContent='Real local bundle loaded. Enter item IDs to compare routes.'; } await compare(); } catch(error){ $('status').textContent=`Service unavailable: ${error.message}`; }
-    }
-    $('run').onclick=()=>compare(); $('failure').onclick=()=>compare(true); start();
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>

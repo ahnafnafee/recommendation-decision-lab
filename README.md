@@ -13,7 +13,7 @@ python -m unittest discover -s tests -v
 python -m reliability.server --port 8899
 ```
 
-Open `http://127.0.0.1:8899/`. The browser profiles and item names are invented. Compare baseline, challenger and active rankings, then click **Simulate challenger failure** to inspect the fallback. The synthetic gate stays closed because no real validation decision applies to those invented users. The service binds to loopback only.
+Open `http://127.0.0.1:8899/`. The browser profiles and item names are invented. Compare baseline, challenger and active rankings, then click **Simulate challenger failure** to inspect the fallback. The synthetic gate stays closed because no real validation decision applies to those invented users. The service binds to loopback only. The same `web/` directory also runs as a static preview with no backend and is ready for a manually triggered GitHub Pages deployment after repository publication.
 
 The API exposes `GET /api/health`, `GET /api/metrics`, and `POST /api/recommend` with a JSON body such as `{"history":["atlas","comet"],"k":5}`. Responses show the active route, shadow and baseline lists, fallback reason and local ranking time. No submitted history is logged or persisted. This is a local demonstrator rather than a hardened production service.
 
@@ -59,7 +59,7 @@ The 5-core dataset was retrospectively filtered using the full corpus; a review 
 | `reliability/` | Training, full-catalog evaluation, bundle verification and local service |
 | `protocol/` | Designs committed before the corresponding category outcome |
 | `reports/` | Public-safe aggregates and research interpretation |
-| `web/` | Dependency-free synthetic browser demo |
+| `web/` | Dependency-free synthetic browser demo with static fallback |
 | `tests/` | Exact-ranking, training-path, bundle and HTTP fallback checks |
 
 

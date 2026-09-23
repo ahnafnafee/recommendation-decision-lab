@@ -8,10 +8,21 @@ from urllib.request import Request, urlopen
 from http.server import ThreadingHTTPServer
 
 from reliability.bundle import load_bundle, save_bundle
-from reliability.server import RecommendationApp, demo_model, handler_factory
+from reliability.server import RecommendationApp, PROFILES, TITLES, demo_model, handler_factory
 
 
 class BundleTests(unittest.TestCase):
+    def test_static_demo_matches_python_model(self):
+        bundle = json.loads((Path(__file__).resolve().parent.parent / "web" / "demo_bundle.json").read_text())
+        model = demo_model()
+        self.assertEqual(bundle["titles"], TITLES)
+        self.assertEqual(bundle["profiles"], PROFILES)
+        self.assertFalse(bundle["gate_open"])
+        self.assertEqual(bundle["lifetime"], model.lifetime)
+        self.assertEqual(bundle["recent"], model.recent)
+        self.assertEqual(bundle["neighbors"], {item: [list(value) for value in entries]
+                                               for item, entries in model.neighbors.items()})
+
     def test_reload_parity_and_integrity(self):
         model = demo_model()
         with TemporaryDirectory() as temporary:
@@ -49,6 +60,10 @@ class ServiceTests(unittest.TestCase):
     def test_health_live_shadow_and_failure_fallback(self):
         with urlopen(self.base + "/api/health") as response:
             self.assertEqual(json.load(response)["status"], "ok")
+        with urlopen(self.base + "/app.js") as response:
+            self.assertIn(b"staticRank", response.read())
+        with urlopen(self.base + "/demo_bundle.json") as response:
+            self.assertEqual(json.load(response)["schema"], 1)
         live = self.post({"history": ["atlas", "comet"], "k": 5})
         self.assertEqual(live["method"], "hybrid")
         self.assertEqual(live["active"], live["shadow"])

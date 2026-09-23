@@ -10,7 +10,9 @@ import subprocess
 ROOT = Path(__file__).resolve().parent.parent
 ROOT_FILES = {".gitignore", ".gitattributes", "README.md", "DATA_LICENSE.md", "LICENSE",
               "CITATION.cff", "pyproject.toml"}
-EXACT = {"web/index.html", ".github/workflows/verify.yml", "tools/release_check.py"}
+EXACT = {"web/index.html", "web/app.js", "web/demo_bundle.json",
+         ".github/workflows/verify.yml", ".github/workflows/pages.yml",
+         "tools/release_check.py"}
 FORBIDDEN_JSON_KEYS = {"user_id", "parent_asin", "history", "target", "ranked", "weights", "model"}
 
 

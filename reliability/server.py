@@ -123,6 +123,10 @@ def handler_factory(app: RecommendationApp):
             if path in ("/", "/index.html"):
                 page = (Path(__file__).resolve().parent.parent / "web" / "index.html").read_bytes()
                 return self.respond(200, page, "text/html; charset=utf-8")
+            if path in ("/app.js", "/demo_bundle.json"):
+                file = Path(__file__).resolve().parent.parent / "web" / path.removeprefix("/")
+                content_type = "application/javascript; charset=utf-8" if path.endswith(".js") else "application/json"
+                return self.respond(200, file.read_bytes(), content_type)
             if path == "/api/health":
                 return self.respond(200, {"status": "ok", "data_scope": app.label,
                                           "catalog_items": len(app.model.lifetime)})
@@ -174,7 +178,7 @@ def main():
         app = RecommendationApp(model, decision["baseline"], decision["challenger_alpha"],
                                 decision["gate_open"], label=manifest["category"] + " local research model")
     else:
-        app = RecommendationApp(demo_model())
+        app = RecommendationApp(demo_model(), titles=TITLES)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler_factory(app)) as server:
         print(f"Local demo: http://127.0.0.1:{server.server_port}/", flush=True)
         server.serve_forever()
