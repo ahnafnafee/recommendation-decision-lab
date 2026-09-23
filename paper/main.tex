@@ -197,7 +197,34 @@ Target inside the promotable shortlist & 11,925 / 35,905 (33.21\%) & 8,267 / 35,
 \end{tabular}
 \end{table}
 
-The arm does not clear the gate. On the full Musical Instruments test split the confined configuration (weight 0.25, repulsion 0, price penalty 0.5) loses 0.001678 NDCG@10 against the same frozen base (95\% interval $[-0.002318, -0.000980]$), and on the exploratory Video Games split it loses 0.002858 (95\% interval $[-0.003598, -0.002195]$), so the confined arm activates in neither category. On the validation cohort from which the configuration was selected the loss is smaller ($-0.001057$, interval $[-0.002147, -0.000042]$); the dense route that re-scores the same shortlist with all-MiniLM-L6-v2 embeddings is directionally positive there ($+0.001048$, interval $[-0.000062, +0.002109]$) but does not open the gate, and the positivity does not hold on the full Musical Instruments test split, where the same confined configuration loses 0.001282 (95\% interval $[-0.001944, -0.000577]$). Among conditions worded like something a person would type, only the published search phrase beats the base on the test split: $+0.002394$ by the lexical route and $+0.002132$ by the dense route on Musical Instruments (intervals $[0.001892, 0.002875]$ and $[0.001669, 0.002622]$), each resting on the same 681 requests. Table~\ref{tab:reach} gives the reason in two numbers that multiply: on the Musical Instruments test split the frozen route had not considered the eventual answer in about two-thirds of requests (shortlist coverage 33.21\%), so a phrase confined to that shortlist has little to promote; and read unconstrained, a person's own earlier words named the eventual answer's product in 2.42\% of the requests where that person had wording to read, where the product's exact title reached it in 99.98\%. Retrieval is not the limiting factor in this arm, expression is. The serving configuration therefore differs from the measured one on purpose: the served route lets a phrase reach the whole catalogue and keeps the behavioural ranking answering whenever the sentence is empty, while the arm that produces a number keeps the phrase confined and reports the loss.
+The arm does not clear the gate. On the full Musical Instruments test split the confined configuration (weight 0.25, repulsion 0, price penalty 0.5) loses 0.001678 NDCG@10 against the same frozen base (95\% interval $[-0.002318, -0.000980]$), and on the exploratory Video Games split it loses 0.002858 (95\% interval $[-0.003598, -0.002195]$), so the confined arm activates in neither category. On the validation cohort from which the configuration was selected the loss is smaller ($-0.001057$, interval $[-0.002147, -0.000042]$); the dense route that re-scores the same shortlist with all-MiniLM-L6-v2 embeddings is directionally positive there ($+0.001048$, interval $[-0.000062, +0.002109]$) but does not open the gate, and the positivity does not hold on the full Musical Instruments test split, where the same confined configuration loses 0.001282 (95\% interval $[-0.001944, -0.000577]$). Among the phrase-like conditions, only the published-search-phrase condition has a positive full-split paired difference: $+0.002394$ for lexical and $+0.002132$ for encoded Musical Instruments (intervals $[0.001892, 0.002875]$ and $[0.001669, 0.002622]$). These averages include all 35,905 test requests, although wording is available for only 681; the matched pairs are a selected diagnostic, not live query traffic. On Video Games, the corresponding lexical difference is $+0.003115$ across all 35,562 requests, with wording for 824. Figure~\ref{fig:wording-arm} shows the three own-words regressions and their paired intervals. Table~\ref{tab:reach} separates two constraints. The target lay inside the promotable shortlist for 33.21\% of Musical Instruments requests, while unconstrained lexical search using earlier review prose retrieved it for 2.42\% of requests with usable wording. These are marginal rates over different denominators; their product is not an observed joint ceiling. An exact target title retrieves its own product 99.98\% of the time, confirming that the index handles target-informed wording, while published queries retrieve the target in 47.72\% of their small matched sample. Thus both the prior-review proxy and shortlist coverage constrain this arm; the title probe does not rule out retrieval failures for natural queries. The serving configuration therefore differs from the measured one on purpose: the served route lets a phrase reach the whole catalogue and keeps the behavioural ranking answering whenever the sentence is empty, while the arm that produces a number keeps the phrase confined and reports the loss.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.77\linewidth, height=2.35in,
+    xmin=-4.0, xmax=0.4, ymin=0.5, ymax=3.5,
+    xtick={-4,-3,-2,-1,0}, ytick={1,2,3},
+    yticklabels={Video Games lexical,Musical Instruments encoded,Musical Instruments lexical},
+    yticklabel style={font=\footnotesize},
+    xlabel={Own-words minus frozen base NDCG@10 ($\times 10^{-3}$)},
+    xmajorgrids, grid style={gray!25},
+    axis x line=bottom, axis y line=left,
+    tick align=outside,
+]
+\addplot[gray,densely dashed,forget plot] coordinates {(0,0.55) (0,3.45)};
+\addplot[blue!70!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(-2.318,3) (-0.980,3)};
+\addplot[blue!70!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(-1.678,3)};
+\addplot[violet!75!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(-1.944,2) (-0.577,2)};
+\addplot[violet!75!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(-1.282,2)};
+\addplot[orange!80!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(-3.598,1) (-2.195,1)};
+\addplot[orange!80!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(-2.858,1)};
+\end{axis}
+\end{tikzpicture}
+\caption{Exploratory own-words wording arm against the frozen behavioural base on the full test splits. Points are paired NDCG@10 differences; lines are user-cluster bootstrap 95\% intervals. Lexical retrieval was measured in both categories; encoded retrieval was measured only in Musical Instruments. Both test periods had already been opened by earlier work, so these intervals describe regressions on those cohorts rather than independent confirmation.}
+\label{fig:wording-arm}
+\end{figure}
 
 The capability is cheap to run. Loading 22,753 product descriptions and building the index takes 3.1 to 3.2 s at startup, a phrased request is answered in 38.3 ms at the median and 48.1 ms at the 95th percentile over 200 scored Musical Instruments requests (21.2 ms and 29.3 ms for Video Games) in process, the dense route answers the same 200 Musical Instruments requests in 26.9 ms at the median and 62.2 ms at the 95th percentile, and the service holds up to eight earlier sentences in memory so it can re-answer from something already said without being asked again. The dense route, when the optional dependency is installed, encodes the same catalogue in 37.4 s on one consumer GPU.
 

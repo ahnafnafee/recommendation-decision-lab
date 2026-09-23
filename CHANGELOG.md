@@ -94,6 +94,10 @@ collected at the top.
 
 ### Fixed
 
+- Clarified the wording-arm interpretation: shortlist coverage and unconstrained
+  phrase reach are separate marginal diagnostics, not a measured product, and an
+  exact-title probe does not rule out retrieval failures for natural queries.
+  Published-phrase gains are full-split averages from a small matched subset.
 - The shadow audit had counted one number for two different things: history slots with no
   user–item rating in training and history slots whose item is absent from the training
   catalog. `tools/signal_audit.py` now reports them separately — on Musical Instruments

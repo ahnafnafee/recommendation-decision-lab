@@ -115,14 +115,16 @@ The encoded variant (all-MiniLM-L6-v2 over the same shortlist, Musical
 Instruments only, where the embedding artifact exists) is directionally
 positive on the validation cohort (+0.001048, interval −0.000062 to
 +0.002109) but loses on the full test split (−0.001282, interval −0.001944 to
-−0.000577), so the gate stays closed on both routes. Among conditions worded
-like something a person would type, only the published search phrase beats the
-base on the test split: +0.002394 by the lexical route and +0.002132 by the
-encoded route on Musical Instruments (intervals 0.001892 to 0.002875 and
-0.001669 to 0.002622, the same 681 requests) and +0.003115 on Video Games
-(0.002714 to 0.003545, 824 requests).
+−0.000577), so the gate stays closed on both routes. Among phrase-like
+conditions, only the published search phrase has a positive full-split paired
+difference: +0.002394 by the lexical route and +0.002132 by the encoded route
+on Musical Instruments (intervals 0.001892 to 0.002875 and 0.001669 to
+0.002622), and +0.003115 on Video Games (0.002714 to 0.003545). These
+differences average over all test requests, although a published phrase is
+available for only 681 Musical Instruments requests and 824 Video Games
+requests. The selected pairs do not represent live query traffic.
 
-Two ceilings explain the sign, and they multiply (full reach table in the
+Two separate constraints limit the confined arm (full reach table in the
 manuscript):
 
 | diagnostic | Musical Instruments, test | Video Games, test | reading |
@@ -130,16 +132,20 @@ manuscript):
 | behavioural shortlist coverage | 11,925 / 35,905 = 33.21% | 8,267 / 35,562 = 23.25% | in most requests the frozen behavioural route never considered the answer, so a confined phrase cannot promote it |
 | unconstrained phrase reach, `own_words` | 627 / 25,926 = 2.42% | 390 / 22,320 = 1.75% | the person's earlier words named the eventual answer's product almost never |
 | `cross_words` reach | 0.74% | 0.56% | somebody else's words are worse, as expected |
-| `target_title` reach | 99.98% | 99.97% | the matcher is not the weak link: the exact words of the product always find it |
+| `target_title` reach | 99.98% | 99.97% | target-informed exact wording confirms the index can recover a known title, but does not test natural-query retrieval |
 | `random_title` reach | 0.73% | 0.42% | and that is not an accident of a permissive index |
 | `published` reach | 47.72% | 33.50% | a real searcher's phrase for the product reaches far more often than the person's own prose |
 
-The gap between `own_words` at 2.42% and `published` at 47.72% is the
-interesting number: retrieval is not the bottleneck, expression is. A person
-reviewing a keyboard six months ago wrote about their hands, not about the
-model they would later be shown. Under the frozen protocol that is reported as
-what language is worth on this data, not fixed by tuning the phrase weight
-until the sign flips.
+The gap between `own_words` at 2.42% and `published` at 47.72% indicates that
+earlier review prose is a poor proxy for a later product-seeking phrase. The
+33.21% behavioural shortlist coverage is another constraint: even a useful
+phrase cannot promote a target outside that shortlist. These are marginal
+rates with different denominators, so their product is not a measured joint
+ceiling. Exact-title reach checks the index on target-informed wording; the
+published-phrase reach below 50% shows that retrieval can still fail for a
+natural query. Under the frozen protocol, the negative own-words result is
+reported rather than tuned away, and neither diagnostic establishes the
+quality of live typed requests.
 
 In-process timing on the scored requests (one phrase and one unravelling
 request; no HTTP, model load, or disk): 38.3 ms median and 48.1 ms at the 95th
