@@ -8,16 +8,16 @@
 \setlength{\emergencystretch}{2em}
 \title{When Does Personalization Earn the Route?\\A Full-Catalog Temporal Study of Guarded Recommendation}
 \author{Ahnaf An Nafee}
-\date{22 September 2026}
+\date{23 September 2026}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Offline recommendation gains can disappear when a model must retrieve from the full catalog rather than reorder previously observed items. We study a practical decision: whether a personalized challenger should replace a validation-selected popularity baseline. Using the global temporal splits of Amazon Reviews'23, we train popularity and co-review models only on earlier reviews, retain future targets absent from the training catalog as misses, and fix the route before reading test reviews. Video Games is an exploratory development category; Musical Instruments is a previously unopened category evaluated after the method was fixed. On 35,905 eligible Musical Instruments test requests, a co-review hybrid obtains 0.008681 NDCG@10 against 0.008007 for recent popularity. The paired difference is 0.000674, with a user-cluster bootstrap 95\% interval of [0.000040, 0.001338]. A later two-tower retriever improves on popularity when blended with it, but does not beat the active hybrid on validation and remains a shadow model. A local service exposes the chosen route, shadow ranking, and fallback behavior. The contribution is an auditable comparison and a guarded routing implementation, not a new recommendation algorithm or evidence of online impact.
+Offline recommendation gains can disappear when a model must retrieve from the full catalog rather than reorder previously observed items. We study a practical decision: whether a personalized challenger should replace a validation-selected popularity baseline. Using the global temporal splits of Amazon Reviews'23, we train popularity and co-review models only on earlier reviews, retain future targets absent from the training catalog as misses, and fix the route before reading test reviews. Video Games is an exploratory development category; Musical Instruments is a previously unopened category evaluated after the method was fixed. On 35,905 eligible Musical Instruments test requests, a co-review hybrid obtains 0.008681 NDCG@10 against 0.008007 for recent popularity. The paired difference is 0.000674, with a user-cluster bootstrap 95\% interval of [0.000040, 0.001338]. A later two-tower retriever improves on popularity when blended with it, but does not beat the active hybrid on validation and remains a shadow model. We then ask what the frozen route discards. An audit of the same records finds ratings below four, products outside the twenty-item history window, and requests carrying no history at all; two arms that re-read that remainder without asking anything of a person clear the same gate on the validation cohort ($+0.000449$ and $+0.000466$ NDCG@10), while a first-purchase prior derived from comparable training users loses it and an elicited interview is reported with its measured cost. A final arm answers a typed sentence against product listings; it is served, but it does not clear the gate on the frozen metric, and a reach decomposition explains the direction. These latter experiments are validation-only and exploratory. A local service exposes the chosen route, shadow ranking, and fallback behavior. The contribution is an auditable comparison and a guarded routing implementation, not a new recommendation algorithm or evidence of online impact.
 \end{abstract}
 
-\noindent\textbf{Keywords:} recommender systems; full-catalog evaluation; temporal split; model selection; neural retrieval; fallback routing
+\noindent\textbf{Keywords:} recommender systems; full-catalog evaluation; temporal split; model selection; neural retrieval; fallback routing; already-held evidence; preference elicitation; phrase-to-products retrieval
 
 \section{Introduction}
 Predicting a rating for an item a user chose to review is different from retrieving that item among thousands of products. The second task must account for products the user has not encountered, items unavailable to a model trained on earlier activity, and changes in the active population. Offline protocols that ignore the global timeline can distort model comparisons~\cite{ji2023leakage,gusak2025time}. We therefore evaluate retrieval against the training catalog under a global temporal split.
@@ -26,14 +26,36 @@ The operational question is narrower than finding the strongest model in a bench
 
 The held-out Musical Instruments result is positive but small in absolute terms. It is therefore useful as evidence that the fixed co-review route can transfer to another product category under the same benchmark, rather than evidence of a broadly superior recommender. The neural extension, designed after that category's test result was known, provides an exploratory model comparison and a concrete example of a validation gate remaining closed.
 
+Two further sets of experiments ask a different question about the same frozen route: what does it leave unread? The route reads one field of a request. An audit of the records behind that field finds ratings below four, products outside the twenty-item history window, and requests with no history to read at all. Arms that re-read that remainder ask nothing of a person and are reported as free evidence; the arm that asks instead is reported with the number of questions it takes and the number of answers it gets. A final arm supplies a capability the route lacks entirely, answering a sentence about what the person wants. Every one of these challengers is judged by the rule the route itself was selected under, and more than one of them is declined.
+
 \section{Related work}
-Global temporal evaluation is important when future interactions or future catalog information could reach training or selection~\cite{ji2023leakage,gusak2025time}. We use the owner-provided time split of Amazon Reviews'23~\cite{hou2026bridging,amazon5core} and freeze model fitting before the validation origin. The benchmark's 5-core filter is itself retrospective, however, so this procedure does not recreate an unfiltered production stream.
+Global temporal evaluation is important when future interactions or future catalog information could reach training or selection~\cite{ji2023leakage,gusak2025time}. We use the owner-provided time split of Amazon Reviews'23~\cite{hou2026bridging,amazon5core} and freeze model fitting before the validation origin. The split rule is not a neutral detail: it can markedly alter the ranking of published models, and temporal global splitting is recommended as the default~\cite{meng2020splitting}, while sampled test items and overlapping periods are among the flaws that can reverse a reported conclusion~\cite{hidasi2023flaws}. The benchmark's 5-core filter is itself retrospective, however, so this procedure does not recreate an unfiltered production stream.
 
 Item co-occurrence, popularity controls, and two-tower retrieval are established recommendation tools. Deep candidate-generation systems have demonstrated the utility of learned user and item representations~\cite{covington2016youtube}; in-batch alternatives are a common training device for two-tower models~\cite{wang2021crossbatch}. Our neural experiment uses those ideas without claiming a novel architecture or negative-sampling method. The paper instead reports whether the trained challenger improves the route already selected by a simpler model.
 
+A route that is allowed to decline has other names in the literature. Serving systems place a latency objective between callers and models and answer heavy load by caching, batching, or switching to a cheaper model~\cite{crankshaw2016clipper}. Learning to abstain treats rejection as a decision in its own right, measured separately from predictive quality and separated into ambiguity and novelty cases~\cite{hendrickx2021reject}, and learning when to defer to a second decision-maker requires evidence about that decision-maker's actual capability~\cite{hemmer2023defer}. The gate in this paper is an offline, uncalibrated version of the same decision, kept in code rather than in a learned policy: it continues to score the declined route so that evidence for reopening it accumulates, and it returns a named reason instead of a silent substitution.
+
+That a challenger beats another challenger is a deliberately weak warrant here. Offline metrics correlate with online performance, but training and interaction dynamics weaken the relationship~\cite{krauth2020offline}, and counterfactual estimates of uplift from logs trade bias against variance in precisely the personalised setting~\cite{gilotte2018offline}. Our intervals are therefore read as statements about a frozen cohort and temporal period, not as expected traffic movement. Published guidance for this literature asks for baselines that are tuned rather than assumed weak, a stated search budget, and explicit uncertainty quantification, and observes that many published results on smaller datasets are probably not statistically significant once uncertainty is quantified by nested resampling and testing~\cite{schnabel2022here}. Our search budget is small and fixed: four blend weights for the co-review route and five for the neural route, with no other tuning. The baseline is the route that same selection rule already chose, and every difference we report carries a paired user-cluster interval.
+
+The two remaining challenger families each have prior evidence. Evidence a request omits can be asked for, and asking was shown to help when history is too thin to personalised~\cite{rashid2008preferences}; recent work evaluates onboarding elicitation policies against simulated users instead of live traffic~\cite{hsu2024minimizing} and finds that the elicitation interaction itself introduces selection bias~\cite{gupta2024selection}. Both are reasons to publish a question count beside a gain rather than a gain alone. Evidence can also be read from wording: dense retrieval over product text is standard in e-commerce search~\cite{huang2020ebr,reddy2022esci}, a semantic route is commonly confined to a candidate set rather than trusted with the whole catalogue~\cite{yang2024liger}, and sentence embeddings make one fixed-size vector per listing affordable at catalogue scale~\cite{reimers2019sbert}. Because the phrases in our language arm are constructed rather than typed, that arm inherits a measurement result from synthetic test collections: bias appears in absolute metrics while relative comparisons between systems survive it~\cite{rahmani2024synthetic,rahmani2025bias}. That is why the arm is judged only by a paired relative gate and never quoted as an absolute score. A production study of routing makes the same point from the traffic side: synthetic queries implied the expensive path was needed for over 90\% of requests where real traffic needed it for 27.8\%~\cite{hussain2026coverage}.
+
+Two published lines sit closer to the arms that opened the gate. The first reads what
+a person registers without recording it: short-video logs where the absence of an
+expected action is modelled as passive-negative feedback~\cite{pan2023sine}, and
+sequential recommenders scored with explicit negative feedback against a likes-only
+baseline~\cite{wang2023negative}. Both report that recorded likes understate
+preference, which is the shape of the difference measured here: reading discarded
+ratings against held-out items takes 86\% of what a hundred questions buy when the
+system may record only likes, at no cost in questions. The second line concerns the
+fallback. A re-examination of the popularity baseline finds that for heavy users the
+individual history predicts later engagement better than popularity does~\cite{ji2020popularity}.
+The size-conditioned arm wants the opposite allocation, more popularity weight where
+the recorded history is longest, and is reported as a routing observation about this
+committed blend rather than as a challenge to that result.
+
 \section{Evaluation design}
 \subsection{Data, target, and catalog}
-We use the \texttt{timestamp\_w\_his} train, validation, and test files for Video Games and Musical Instruments in the Amazon Reviews'23 5-core benchmark~\cite{amazon5core}. The source supplies global cutoffs and each review's prior-item history. A rating of at least four defines a positive review. Each eligible positive validation or test review becomes one request whose target is the reviewed product; a target already in its supplied history is excluded. The candidate set is the full set of items observed in the training file, minus products in that request's prior history. A future target absent from the training catalog remains in the denominator and scores zero for every method.
+We use the \texttt{timestamp\_w\_his} train, validation, and test files for Video Games and Musical Instruments in the Amazon Reviews'23 5-core benchmark~\cite{amazon5core}. The source supplies global cutoffs and each review's prior-item history. A rating of at least four defines a positive review. Each eligible positive validation or test review becomes one request whose target is the reviewed product; a target already in its supplied history is excluded. The candidate set is the full set of items observed in the training file, minus products in that request's prior history. Scoring that whole set rather than a sampled subset follows the guidance that testing should rank the candidates a system would actually serve~\cite{hidasi2023flaws}. A future target absent from the training catalog remains in the denominator and scores zero for every method.
 
 For a ranked list $R$ with one target $y$, NDCG@10 is $1/\log_2(r+1)$ when $y$ appears at one-based rank $r\leq10$, and zero otherwise. We average this request-level value over the eligible cohort. This measures recovery of later positive reviews from the frozen training catalog. Reviews do not record which products a user saw, so the metric is not an exposure-adjusted engagement estimate.
 
@@ -122,23 +144,127 @@ The later experiment trains a two-tower retriever on 313,522 chronological pairs
 
 On validation, the unblended neural model scored 0.001411 NDCG@10. Selecting a blend of 40\% neural score and 60\% recent popularity raised it to 0.011774, above recent popularity's 0.010715 but below the active co-review hybrid's 0.011969. The paired neural-minus-hybrid validation difference was $-0.000195$ [$-0.000985$, 0.000611], so the stronger-challenger gate remained closed. On the already studied test period, the blend scored 0.008357 against 0.008681 for the hybrid. Since this model was designed after exposure to that period, the test comparison is exploratory and does not add a second fresh confirmation.
 
+\subsection{Evidence the frozen route discards}
+The route reads one thing at a request: up to twenty distinct positive items attached to it. An audit of the same records (\texttt{tools/signal\_audit.py}) measures what is discarded. In the Musical Instruments validation split, 47,459 history slots carry a rating below four, 96,984 history slots name a product the training catalog never saw, and 23\% of the distinct items a validation record lists sit outside that twenty-item window. For all 14,175 validation users who had a prior training record, the attached history reproduced the record exactly, so the window is a choice made by this scorer rather than a limit of the archive.
+
+A shadow profile assembles that remainder. Table~\ref{tab:shadow} scores six arms against the route validation already chose, the co-review hybrid at $\alpha=0.75$, on 33,993 eligible validation requests from 13,908 users, under the same gate. Two arms that ask nothing of anyone clear the gate; a derived prior loses it.
+
+\begin{table}[ht]
+\centering
+\caption{Shadow-profile arms on the Musical Instruments validation cohort, against the active hybrid at 0.011969 NDCG@10. Both test periods in this study were opened by earlier work, so these are exploratory validation results and not confirmations. Intervals are paired user-cluster bootstrap. C1 and C2 read the same discarded low ratings, so their gains overlap and were not fitted together.}
+\label{tab:shadow}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Arm & NDCG@10 & $\Delta$ vs active & 95\% interval \\
+\midrule
+C1 repulsion from sub-four ratings ($\gamma=1$) & 0.012418 & $+0.000449$ & $[0.000266, 0.000626]$ \\
+C2 star grading, 1095-day decay & 0.012435 & $+0.000466$ & $[0.000165, 0.000750]$ \\
+C3 analogous first-purchase prior & 0.011824 & $-0.000145$ & $[-0.000270, -0.000028]$ \\
+C4 blend weight by history length & 0.012523 & $+0.000554$ & $[0.000062, 0.001057]$ \\
+C5 interview, 100 questions\footnotesize{(likes and dislikes)} & --- & $+0.000940$ & $[0.000613, 0.001259]$ \\
+C6 adjacent surface, reachable probe & 0.011960 & $-0.000009$ & $[-0.000028, 0.000000]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+C1 changes one term: a history item the platform observed below four now contributes repulsion as well as attraction. Setting $\gamma=0$ reproduces the active route, and on real records that cell returns 0.011969, the active route's own figure, so the parity check passes outside a unit test. The C2 ablation locates nearly all of that arm's gain in the age of a record rather than in its star weight: a three-year half-life with flat rating weights moves NDCG@10 from 0.011969 to 0.012381, and grading on top of it adds 0.000054. C4's value is the bucket table beneath it. Accuracy is not monotone in experience: it peaks at one or two recorded items (0.014825) and falls to 0.006784 for users with twenty or more, and where C4 differs from the frozen route it differs by \emph{reducing} the personalised weight from 0.75 to 0.5. The frozen route over-trusts long histories.
+
+The elicited arm is reported with its cost, because inferred evidence is free to a person and elicited evidence is not. At the deepest budget the system asks 100 questions per request and receives 0.40 usable answers, one for every 248 questions, since it must ask about products nobody touched; 44\% of the gain at that budget comes from refusals, which are 12\% of the answers returned. C1's $+0.000449$ at no cost equals 86\% of what 100 questions buy when only likes are allowed, and three questions with dislikes allowed barely exceed it ($+0.000540$). Where asking does win is the refusal nobody has volunteered: at the same $\gamma$ the interview adds $+0.000940$ on top of C1.
+
+C3 lost on the slice it touched rather than in aggregate. It fires on the 1,618 requests with no catalog-known history item, where its $-0.000145$ overall rescales to about $-0.00305$: substituting the aggregate first purchase of comparable training users ranks the eventual target worse than the current crowd does, which is the direction reported for low-activity users by Rashid et al.~\cite{rashid2008preferences}. Borrowing from an adjacent surface could not be measured as a comparison at all: the two category archives share 2,802 training users, roughly one in twenty, and the arm could reach a donor record for 47 of 33,993 requests (0.14\%), below the 5\% share the design set as the floor for reading it as a comparison.
+
+\subsection{Answering a sentence}
+The route reads one field of a request, so it cannot answer a request that states what the person wants. A final challenger supplies that capability: a typed sentence is matched against the product text of the same catalogue, and its answer is reported beside the unchanged behavioural ranking rather than merged into one number. Product text is not part of the \texttt{timestamp\_w\_his} files, so it is fetched separately for the items in the training catalog. For Musical Instruments this yielded descriptions for all 22,753 products, titles for 22,751, and a recorded price for 14,928, together with the earlier reviews of 55,981 people and 157 published query-to-product pairs from the same platform's search archives. Matching is BM25 written against the standard library (postings ordered by item ID, $k_1=1.2$, $b=0.75$), with an optional dense route over the same documents from a 384-dimensional sentence encoder; the ranker uses whichever route is available and the measured arm uses the lexical one. Negation is scoped to the words after a cue and ends at the next cue, so a phrase can rule a product class out, and a stated figure is treated as a limit on the served route: products recorded above it are not offered, and products with no recorded price are kept.
+
+Six wording conditions are scored against the route validation already chose, under the same paired gate. Two are read back from the person's own earlier reviews, one raw and one scrubbed to product words appearing in under 1\% of listings, so that shared product vocabulary cannot carry the answer by itself. One takes wording from a different reviewer of the same product, which is the generalisation control. Three are probes of the ceiling rather than of language a person would type: the target product's own title, a randomly drawn title, and the published query pairs. Table~\ref{tab:reach} reports how often each condition's answer list contained the eventual target, beside the ceiling a confined phrase works against.
+
+\begin{table}[ht]
+\centering
+\caption{Wording reach on a 400-request pilot drawn from the Musical Instruments validation cohort while the full run continues. The middle column counts requests where the condition had wording to read; the right column is the share of those requests whose answer list, read without the confinement below, contained the eventual target. The last row is not a wording condition: it is the share of requests whose target sat inside the shortlist a confined phrase was allowed to promote at all.}
+\label{tab:reach}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Wording condition & Requests with wording & Answer list contained target \\
+\midrule
+Own earlier reviews & 389 & 4.11\% (16) \\
+Own reviews, scrubbed to rare product words & 389 & 2.83\% (11) \\
+Another reviewer of the same product & 389 & 1.03\% (4) \\
+Target product title & 199 & 100\% (199) \\
+Randomly drawn product title & 400 & 0.50\% (2) \\
+Published query pairs & 6 & 50\% (3) \\
+\midrule
+Target inside the promotable shortlist & 400 & 18.75\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The arm does not clear the gate. On the pilot the confined configuration lost 0.00240 NDCG@10 against the same frozen base (95\% lower bound $-0.00878$) and a whole-catalogue fusion lost 0.00337 ($-0.00963$), so neither activates. Table~\ref{tab:reach} gives the reason in two numbers that multiply: the frozen route had not considered the eventual answer in more than four requests in five, so a phrase confined to that shortlist has almost nothing to promote; and read without confinement, a person's own earlier words named the eventual answer's product in a small single-digit share of requests, where the product's exact title reached it in every one. Retrieval is not the limiting factor in this arm, expression is. The serving configuration therefore differs from the measured one on purpose: the served route lets a phrase reach the whole catalogue and keeps the behavioural ranking answering whenever the sentence is empty, while the arm that produces a number keeps the phrase confined and reports the loss.
+
+The capability is cheap to run. Loading 22,753 product descriptions and building the index takes 3.1 to 3.2 s at startup, a phrased request is answered in 3.5 to 16.3 ms in process, and the service holds up to eight earlier sentences in memory so it can re-answer from something already said without being asked again. The dense route, when the optional dependency is installed, encodes the same catalogue in 37.4 s on one consumer GPU.
+
 \section{Guarded service and reproducibility}
-The public implementation serves baseline, co-review shadow, optional neural shadow, active ranking, and an explicit fallback reason through a loopback HTTP API. A saved validation decision determines the active route. Empty or unsupported histories and challenger failures return the popularity baseline. A local model bundle checks its source hash before serving; optional neural weights and their training source are checked as well. A synthetic browser walkthrough illustrates these decisions with invented users and product names. Its controls do not alter the measured results.
+The public implementation serves baseline, co-review shadow, optional neural shadow, active ranking, and an explicit fallback reason through a loopback HTTP API. A saved validation decision determines the active route. Empty or unsupported histories and challenger failures return the popularity baseline. A local model bundle checks its source hash before serving; optional neural weights and their training source are checked as well. A phrased request is served by a separate route whose answer is returned beside the behavioural one, with the terms it looked for, the terms it ruled out, and any stated figure reported back, so a reader can see which part of an answer came from words. Up to eight sentences are held in process memory and cleared when the process stops; submitted histories are not written to disk. A synthetic browser walkthrough illustrates these decisions with invented users and product names. Its controls do not alter the measured results.
 
 The measured in-process Python ranking p95 was 0.611 ms for the Video Games replay and 0.760 ms for Musical Instruments, including baseline and co-review challenger scoring but excluding HTTP, loading, concurrency, and network time. The neural batch-ranking timing has a different scope and is not a like-for-like service latency comparison. The repository contains source, evaluation methods, aggregate JSON results, and tests at \url{https://github.com/ahnafnafee/recommendation-decision-lab}. Downloaded review files, row-level predictions, and fitted weights are not redistributed. The dataset remains available from its owner subject to the owner's terms~\cite{amazon5core}.
 
 \section{Limitations and conclusion}
 The 5-core subset was formed using support across the full corpus, which retrospectively selects users and products. Review activity is not an impression, purchase, or unbiased preference label. Our user-cluster intervals hold the fitted models and temporal period fixed and do not account for shared-item dependence, model refitting, selection across methods, or future regimes. The second category tests a different product domain within the same platform, not transfer to a new service. The neural route was assessed after the category test was known, and one compact architecture does not exhaust learned retrieval methods.
 
-Within those limits, the fixed co-review hybrid beat a validation-selected popularity baseline by a small margin in Musical Instruments. The later neural blend improved on popularity but did not earn the active route. Together, the experiments show why a recommendation system should report the baseline it would actually use, evaluate the catalog it can actually retrieve, and retain a clear fallback when additional model capacity lacks sufficient evidence.
+The profile arms were scored on the validation cohort alone, because both test periods in this study had already been opened by earlier work. Their positive intervals are therefore a reason to run a fresh category, not a confirmation, and the arms were not fitted together: two of them read the same sub-four ratings, so their gains overlap. The wording arm carries two further limits. Two of its conditions are read back from reviews written about the answer itself, so their absolute scores inherit the target's vocabulary and only their paired differences are informative; the scrubbed variant exists to bound that effect, and the published-pair condition has too few pairs in this category to carry a conclusion on its own. The remaining conditions are probes of an upper bound, not phrases anyone typed, so their values are read relative to each other. Product text is fetched by whoever runs the code and is not redistributed here.
 
-\begin{thebibliography}{9}
+Within those limits, the fixed co-review hybrid beat a validation-selected popularity baseline by a small margin in Musical Instruments. The later neural blend improved on popularity but did not earn the active route. Applying the same rule to the evidence the route leaves unread is more informative than either result on its own: two arms that re-read material already held earned activation at no cost to a person, an arm that asked instead paid 248 questions per usable answer for a larger gain, a prior derived from comparable users was declined, and the arm that answers a sentence was declined on the shared metric while remaining the only one that changes what the system can respond to. Together, the experiments show why a recommendation system should report the baseline it would actually use, evaluate the catalog it can actually retrieve, look twice at the records it already received, and retain a clear fallback when additional capacity or additional evidence lacks sufficient proof.
+
+\begin{thebibliography}{27}
 \bibitem{amazon5core} McAuley Lab. \emph{Amazon Reviews'23: Pure IDs (5-Core)}. \url{https://amazon-reviews-2023.github.io/data_processing/5core.html}.
 \bibitem{hou2026bridging} Y. Hou, J. Li, X. Fu, Z. He, A. Yan, X. Chen, and J. McAuley. Bridging Language and Items for Retrieval and Recommendation: Benchmarking LLMs as Semantic Encoders. \emph{arXiv:2403.03952}, version 2, 2026. \url{https://arxiv.org/abs/2403.03952}.
 \bibitem{ji2023leakage} Y. Ji, A. Sun, J. Zhang, and C. Li. A Critical Study on Data Leakage in Recommender System Offline Evaluation. \emph{ACM Transactions on Information Systems}, 41(3), Article 75, 2023. \url{https://doi.org/10.1145/3569930}.
 \bibitem{gusak2025time} D. Gusak, A. Volodkevich, A. Klenitskiy, A. Vasilev, and E. Frolov. Time to Split: Exploring Data Splitting Strategies for Offline Evaluation of Sequential Recommenders. In \emph{Proceedings of RecSys '25}, pp. 874--883, 2025. \url{https://doi.org/10.1145/3705328.3748164}.
 \bibitem{covington2016youtube} P. Covington, J. Adams, and E. Sargin. Deep Neural Networks for YouTube Recommendations. In \emph{Proceedings of RecSys '16}, pp. 191--198, 2016. \url{https://doi.org/10.1145/2959100.2959190}.
 \bibitem{wang2021crossbatch} J. Wang, J. Zhu, and X. He. Cross-Batch Negative Sampling for Training Two-Tower Recommenders. In \emph{Proceedings of SIGIR '21}, 2021. \url{https://doi.org/10.1145/3404835.3463032}.
+\bibitem{rashid2008preferences} A. M. Rashid, G. Karypis, and J. Riedl. Learning preferences of new users in recommender systems: an information theoretic approach. \emph{SIGKDD Explorations}, 10(2), pp. 90--101, 2008. \url{https://dl.acm.org/doi/10.1145/1540276.1540295}.
+\bibitem{crankshaw2016clipper} D. Crankshaw, X. Wang, G. Zhou, M. J. Franklin, J. E. Gonzalez, and I. Stoica. Clipper: A Low-Latency Online Prediction Serving System. \emph{arXiv:1612.03079}, 2016 (later \emph{MLSys '18}). \url{https://arxiv.org/abs/1612.03079}.
+\bibitem{hendrickx2021reject} K. Hendrickx, L. Perini, D. Van der Plas, W. Meert, and J. Davis. Machine Learning with a Reject Option: A survey. \emph{Machine Learning}, 2024 (preprint \emph{arXiv:2107.11277}, 2021). \url{https://arxiv.org/abs/2107.11277}.
+\bibitem{hemmer2023defer} P. Hemmer, L. Thede, M. V\"ossing, J. Jakubik, and N. K\"uhl. Learning to Defer with Limited Expert Predictions. In \emph{Proceedings of AAAI-23}, 2023. \url{https://arxiv.org/abs/2304.07306}.
+\bibitem{krauth2020offline} K. Krauth, S. Dean, A. Zhao, W. Guo, M. Curmei, B. Recht, and M. I. Jordan. Do Offline Metrics Predict Online Performance in Recommender Systems? \emph{arXiv:2011.07931}, 2020. \url{https://arxiv.org/abs/2011.07931}.
+\bibitem{gilotte2018offline} A. Gilotte, C. Calauz\`enes, T. Nedelec, A. Abraham, and S. Doll\'e. Offline A/B testing for Recommender Systems. In \emph{Proceedings of KDD '18}, 2018. \url{https://arxiv.org/abs/1801.07030}.
+\bibitem{hsu2024minimizing} C.-W. Hsu, M. Mladenov, O. Meshi, J. Pine, H. Pham, S. Li, X. Liang, A. Polishko, L. Yang, B. Scheetz, and C. Boutilier. Minimizing Live Experiments in Recommender Systems: User Simulation to Evaluate Preference Elicitation Policies. \emph{arXiv:2409.17436}, 2024. \url{https://arxiv.org/abs/2409.17436}.
+\bibitem{gupta2024selection} S. Gupta, H. Oosterhuis, and M. de Rijke. A First Look at Selection Bias in Preference Elicitation for Recommendation. In \emph{CONSEQUENCES'23 workshop at RecSys '23}, 2023. \url{https://arxiv.org/abs/2405.00554}.
+\bibitem{huang2020ebr} J. Huang, A. Sharma, S. Sun, L. Xia, D. Zhang, P. Pronin, J. Padmanabhan, G. Ottaviano, and L. Yang. Embedding-based Retrieval in Facebook Search. In \emph{Proceedings of KDD '20}, 2020. \url{https://arxiv.org/abs/2006.11632}.
+\bibitem{reddy2022esci} C. K. Reddy, L. M\`arquez, F. Valero, N. Rao, H. Zaragoza, S. Bandyopadhyay, A. Biswas, A. Xing, and K. Subbian. Shopping Queries Dataset: A Large-Scale ESCI Benchmark for Improving Product Search. \emph{arXiv:2206.06588}, 2022. \url{https://arxiv.org/abs/2206.06588}.
+\bibitem{yang2024liger} L. Yang, F. Paischer, K. Hassani, J. Li, S. Shao, Z. G. Li, Y. He, X. Feng, N. Noorshams, S. Park, B. Long, R. D. Nowak, X. Gao, and H. Eghbalzadeh. Unifying Generative and Dense Retrieval for Sequential Recommendation. \emph{arXiv:2411.18814}, 2024. \url{https://arxiv.org/abs/2411.18814}.
+\bibitem{reimers2019sbert} N. Reimers and I. Gurevych. Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. In \emph{Proceedings of EMNLP 2019}, 2019. \url{https://arxiv.org/abs/1908.10084}.
+\bibitem{rahmani2024synthetic} H. A. Rahmani, N. Craswell, E. Yilmaz, B. Mitra, and D. Campos. Synthetic Test Collections for Retrieval Evaluation. In \emph{Proceedings of SIGIR 2024}, 2024. \url{https://arxiv.org/abs/2405.07767}.
+\bibitem{rahmani2025bias} H. A. Rahmani, V. Ramineni, E. Yilmaz, N. Craswell, and B. Mitra. Towards Understanding Bias in Synthetic Data for Evaluation. In \emph{Proceedings of CIKM 2025}, 2025. \url{https://arxiv.org/abs/2506.10301}.
+\bibitem{hussain2026coverage} Z. Hussain and K. Nielbo. The Coverage Illusion: From Pre-retrieval Routing Failure to Post-retrieval Cascades in a Production RAG System. \emph{arXiv:2605.27220}, 2026. \url{https://arxiv.org/abs/2605.27220}.
+\bibitem{meng2020splitting} Z. Meng, R. McCreadie, C. Macdonald, and I. Ounis. Exploring Data Splitting Strategies for the Evaluation of Recommendation Models. \emph{arXiv:2007.13237}, 2020. \url{https://arxiv.org/abs/2007.13237}.
+\bibitem{hidasi2023flaws} B. Hidasi and {\'A}. T. Czapp. Widespread Flaws in Offline Evaluation of Recommender Systems. In \emph{Proceedings of the 17th ACM Conference on Recommender Systems}, 2023. \url{https://arxiv.org/abs/2307.14951}.
+\bibitem{schnabel2022here} T. Schnabel. Where Do We Go From Here? Guidelines For Offline Recommender Evaluation. \emph{arXiv:2211.01261}, 2022. \url{https://arxiv.org/abs/2211.01261}.
+\bibitem{pan2023sine}
+Yunzhu Pan, Chen Gao, Jianxin Chang, Yanan Niu, Yang Song, Kun Gai, Depeng Jin, and
+Yong Li.
+\newblock Understanding and Modeling Passive-Negative Feedback for Short-video
+  Sequential Recommendation.
+\newblock In {\em Proceedings of the 17th ACM Conference on Recommender Systems}, 2023.
+\newblock arXiv:2308.04086.
+
+\bibitem{wang2023negative}
+Yueqi Wang, Yoni Halpern, Shuo Chang, Jingchen Feng, Elaine Ya Le, Longfei Li, Xujian
+Liang, Min-Cheng Huang, Shane Li, Alex Beutel, Yaping Zhang, and Shuchao Bi.
+\newblock Learning from Negative User Feedback and Measuring Responsiveness for
+  Sequential Recommenders.
+\newblock In {\em Proceedings of the 17th ACM Conference on Recommender Systems,
+  Industry Track}, 2023.
+\newblock arXiv:2308.12256.
+
+\bibitem{ji2020popularity}
+Yitong Ji, Aixin Sun, Jie Zhang, and Chenliang Li.
+\newblock A Re-visit of the Popularity Baseline in Recommender Systems.
+\newblock In {\em Proceedings of the 43rd International ACM SIGIR Conference on
+  Research and Development in Information Retrieval}, 2020.
+\newblock arXiv:2005.13829.
+
 \end{thebibliography}
 
 \end{document}
