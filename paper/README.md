@@ -27,6 +27,8 @@ full test-split aggregates (`musical_phrase_exploratory.json`,
 `musical_phrase_dense_exploratory.json`). The wording arm's protocol and reach
 table are tabulated in `reports/phrase_to_products.md`, with its measurement
 command in the top-level README.
+The source and claim-context checks for all manuscript references are recorded in
+`reports/citation_audit.md`.
 These artifacts contain no user-level predictions or fitted weights. The public code and aggregate results are at
 <https://github.com/ahnafnafee/recommendation-decision-lab>. Raw reviews, user-level
 outputs, and model weights remain local. The manuscript is also available as a

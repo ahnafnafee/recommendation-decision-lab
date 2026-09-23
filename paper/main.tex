@@ -37,7 +37,7 @@ A route that is allowed to decline has other names in the literature. Serving sy
 
 That a challenger beats another challenger is a deliberately weak warrant here. Offline metrics correlate with online performance, but training and interaction dynamics weaken the relationship~\cite{krauth2020offline}, and counterfactual estimates of uplift from logs trade bias against variance in precisely the personalised setting~\cite{gilotte2018offline}. Our intervals are therefore read as statements about a frozen cohort and temporal period, not as expected traffic movement. Published guidance for this literature asks for baselines that are tuned rather than assumed weak, a stated search budget, and explicit uncertainty quantification, and observes that many published results on smaller datasets are probably not statistically significant once uncertainty is quantified by nested resampling and testing~\cite{schnabel2022here}. Our search budget is small and fixed: four blend weights for the co-review route and five for the neural route, with no other tuning. The baseline is the route that same selection rule already chose, and every difference we report carries a paired user-cluster interval.
 
-The two remaining challenger families each have prior evidence. Evidence a request omits can be asked for, and asking was shown to help when history is too thin to personalised~\cite{rashid2008preferences}; recent work evaluates onboarding elicitation policies against simulated users instead of live traffic~\cite{hsu2024minimizing} and finds that the elicitation interaction itself introduces selection bias~\cite{gupta2024selection}. Both are reasons to publish a question count beside a gain rather than a gain alone. Evidence can also be read from wording. Embedding-based retrieval has been applied to large-scale search~\cite{huang2020ebr}, the ESCI benchmark supplies product-query relevance judgments~\cite{reddy2022esci}, and sentence embeddings permit product listings to be encoded before a query arrives~\cite{reimers2019sbert}. Because the phrases in our language arm are constructed rather than typed, that arm inherits a measurement result from synthetic test collections: bias can affect absolute metrics, while comparisons between systems may be less affected~\cite{rahmani2024synthetic,rahmani2025bias}. This motivates a paired comparison, but does not validate our constructed phrases as real user requests. A production study of routing makes the same point from the traffic side: synthetic queries implied the expensive path was needed for over 90\% of requests where real traffic needed it for 27.8\%~\cite{hussain2026coverage}.
+The two remaining challenger families each have prior evidence. Evidence a request omits can be asked for: preference elicitation has long been studied for new users with no history to personalize from~\cite{rashid2008preferences}; recent work evaluates onboarding elicitation policies against simulated users instead of live traffic~\cite{hsu2024minimizing} and finds that the elicitation interaction itself introduces selection bias~\cite{gupta2024selection}. Both are reasons to publish a question count beside a gain rather than a gain alone. Evidence can also be read from wording. Embedding-based retrieval has been applied to large-scale search~\cite{huang2020ebr}, the ESCI benchmark supplies product-query relevance judgments~\cite{reddy2022esci}, and sentence embeddings permit product listings to be encoded before a query arrives~\cite{reimers2019sbert}. Because the phrases in our language arm are constructed rather than typed, that arm inherits a measurement result from synthetic test collections: bias can affect absolute metrics, while comparisons between systems may be less affected~\cite{rahmani2024synthetic,rahmani2025bias}. This motivates a paired comparison, but does not validate our constructed phrases as real user requests. A production RAG study of routing makes the same point from the traffic side: synthetic queries implied the expensive path was needed for over 90\% of requests where real traffic needed it for 27.8\%~\cite{hussain2026coverage}.
 
 Two published lines sit closer to the arms that opened the gate. The first reads what
 a person registers without recording it: short-video logs where the absence of an
@@ -246,11 +246,11 @@ Within those limits, the fixed co-review hybrid beat a validation-selected popul
 \bibitem{ji2023leakage} Y. Ji, A. Sun, J. Zhang, and C. Li. A Critical Study on Data Leakage in Recommender System Offline Evaluation. \emph{ACM Transactions on Information Systems}, 41(3), Article 75, 2023. \url{https://doi.org/10.1145/3569930}.
 \bibitem{gusak2025time} D. Gusak, A. Volodkevich, A. Klenitskiy, A. Vasilev, and E. Frolov. Time to Split: Exploring Data Splitting Strategies for Offline Evaluation of Sequential Recommenders. In \emph{Proceedings of RecSys '25}, pp. 874--883, 2025. \url{https://doi.org/10.1145/3705328.3748164}.
 \bibitem{covington2016youtube} P. Covington, J. Adams, and E. Sargin. Deep Neural Networks for YouTube Recommendations. In \emph{Proceedings of RecSys '16}, pp. 191--198, 2016. \url{https://doi.org/10.1145/2959100.2959190}.
-\bibitem{wang2021crossbatch} J. Wang, J. Zhu, and X. He. Cross-Batch Negative Sampling for Training Two-Tower Recommenders. In \emph{Proceedings of SIGIR '21}, 2021. \url{https://doi.org/10.1145/3404835.3463032}.
+\bibitem{wang2021crossbatch} J. Wang, J. Zhu, and X. He. Cross-Batch Negative Sampling for Training Two-Tower Recommenders. In \emph{Proceedings of SIGIR '21}, pp. 1632--1636, 2021. \url{https://doi.org/10.1145/3404835.3463032}.
 \bibitem{rashid2008preferences} A. M. Rashid, G. Karypis, and J. Riedl. Learning preferences of new users in recommender systems: an information theoretic approach. \emph{SIGKDD Explorations}, 10(2), pp. 90--100, 2008. \url{https://doi.org/10.1145/1540276.1540302}.
 \bibitem{crankshaw2016clipper} D. Crankshaw, X. Wang, G. Zhou, M. J. Franklin, J. E. Gonzalez, and I. Stoica. Clipper: A Low-Latency Online Prediction Serving System. \emph{arXiv:1612.03079}, 2016 (later \emph{MLSys '18}). \url{https://arxiv.org/abs/1612.03079}.
-\bibitem{hendrickx2021reject} K. Hendrickx, L. Perini, D. Van der Plas, W. Meert, and J. Davis. Machine Learning with a Reject Option: A survey. \emph{Machine Learning}, 2024 (preprint \emph{arXiv:2107.11277}, 2021). \url{https://arxiv.org/abs/2107.11277}.
-\bibitem{hemmer2023defer} P. Hemmer, L. Thede, M. V\"ossing, J. Jakubik, and N. K\"uhl. Learning to Defer with Limited Expert Predictions. In \emph{Proceedings of AAAI-23}, 2023. \url{https://arxiv.org/abs/2304.07306}.
+\bibitem{hendrickx2021reject} K. Hendrickx, L. Perini, D. Van der Plas, W. Meert, and J. Davis. Machine Learning with a Reject Option: A survey. \emph{Machine Learning}, 113(5), pp. 3073--3110, 2024. \url{https://doi.org/10.1007/s10994-024-06534-x}.
+\bibitem{hemmer2023defer} P. Hemmer, L. Thede, M. V\"ossing, J. Jakubik, and N. K\"uhl. Learning to Defer with Limited Expert Predictions. In \emph{Proceedings of AAAI-23}, 37(5), pp. 6002--6011, 2023. \url{https://doi.org/10.1609/aaai.v37i5.25742}.
 \bibitem{krauth2020offline} K. Krauth, S. Dean, A. Zhao, W. Guo, M. Curmei, B. Recht, and M. I. Jordan. Do Offline Metrics Predict Online Performance in Recommender Systems? \emph{arXiv:2011.07931}, 2020. \url{https://arxiv.org/abs/2011.07931}.
 \bibitem{gilotte2018offline} A. Gilotte, C. Calauz\`enes, T. Nedelec, A. Abraham, and S. Doll\'e. Offline A/B testing for Recommender Systems. In \emph{Proceedings of KDD '18}, 2018. \url{https://arxiv.org/abs/1801.07030}.
 \bibitem{hsu2024minimizing} C.-W. Hsu, M. Mladenov, O. Meshi, J. Pine, H. Pham, S. Li, X. Liang, A. Polishko, L. Yang, B. Scheetz, and C. Boutilier. Minimizing Live Experiments in Recommender Systems: User Simulation to Evaluate Preference Elicitation Policies. \emph{arXiv:2409.17436}, 2024. \url{https://arxiv.org/abs/2409.17436}.
@@ -270,7 +270,7 @@ Yong Li.
 \newblock Understanding and Modeling Passive-Negative Feedback for Short-video
   Sequential Recommendation.
 \newblock In {\em Proceedings of the 17th ACM Conference on Recommender Systems}, 2023.
-\newblock arXiv:2308.04086.
+\newblock arXiv:2308.04086. \url{https://arxiv.org/abs/2308.04086}.
 
 \bibitem{wang2023negative}
 Yueqi Wang, Yoni Halpern, Shuo Chang, Jingchen Feng, Elaine Ya Le, Longfei Li, Xujian
@@ -279,14 +279,14 @@ Liang, Min-Cheng Huang, Shane Li, Alex Beutel, Yaping Zhang, and Shuchao Bi.
   Sequential Recommenders.
 \newblock In {\em Proceedings of the 17th ACM Conference on Recommender Systems,
   Industry Track}, 2023.
-\newblock arXiv:2308.12256.
+\newblock arXiv:2308.12256. \url{https://arxiv.org/abs/2308.12256}.
 
 \bibitem{ji2020popularity}
 Yitong Ji, Aixin Sun, Jie Zhang, and Chenliang Li.
 \newblock A Re-visit of the Popularity Baseline in Recommender Systems.
 \newblock In {\em Proceedings of the 43rd International ACM SIGIR Conference on
   Research and Development in Information Retrieval}, 2020.
-\newblock arXiv:2005.13829.
+\newblock arXiv:2005.13829. \url{https://arxiv.org/abs/2005.13829}.
 
 \end{thebibliography}
 
