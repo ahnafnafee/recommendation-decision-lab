@@ -168,7 +168,7 @@ def run(data: Path, destination: Path, category: str = "Video_Games"):
                 "candidate_ndcg": {str(alpha): quality(hybrid[alpha]) for alpha in ALPHAS},
                 "lifetime": lifetime_quality, "recent": recent_quality,
                 "training": train_stats, "validation": validation_stats,
-                "source_sha256": dict(hashes), "protocol": "protocol/video_games_v1.md"}
+                "source_sha256": dict(hashes)}
     (destination / "validation_decision.json").write_text(json.dumps(decision, indent=2), encoding="utf-8")
     # Test rows are first opened only after validation choice and gate are persisted.
     hashes["test"] = file_hash(paths["test"])

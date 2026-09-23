@@ -8,4 +8,4 @@ Build from the repository root with TeX Live and XeLaTeX:
 latexmk -xelatex -interaction=nonstopmode -halt-on-error -outdir=build/paper paper/main.tex
 ```
 
-The public code and aggregate results are at <https://github.com/ahnafnafee/recommendation-decision-lab>. Raw reviews, user-level outputs, and model weights remain local. The manuscript is also available as a [ResearchGate preprint](https://doi.org/10.13140/RG.2.2.16487.61607). Check the policies of any later submission venue before submitting the same work there.
+The public code and aggregate results are at <https://github.com/ahnafnafee/recommendation-decision-lab>. Raw reviews, user-level outputs, and model weights remain local. The manuscript is also available as a [ResearchGate preprint](https://www.researchgate.net/publication/414634917_When_Does_Personalization_Earn_the_Route_A_Full-Catalog_Temporal_Study_of_Guarded_Recommendation). Check the policies of any later submission venue before submitting the same work there.

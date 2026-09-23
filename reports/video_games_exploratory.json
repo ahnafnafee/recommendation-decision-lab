@@ -61,8 +61,7 @@
     "source_sha256": {
       "train": "7def785f0c13f33d088bf322c725fcd415b6cf7c319998aec628b59ecaee6fe9",
       "valid": "73f0da782dbe5a1f4281420d5b46a12a6abbeb3da02e1a69eff70a8ffb988a24"
-    },
-    "protocol": "protocol/video_games_v1.md"
+    }
   },
   "test": {
     "baseline": {

@@ -25,7 +25,7 @@ The source is the [McAuley Lab Amazon Reviews'23 5-core absolute-timestamp bench
 https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/benchmark/5core/timestamp_w_his/<Category>.<split>.csv.gz
 ```
 
-The original local run followed the committed [Video Games protocol](protocol/video_games_v1.md), then fixed a defect and committed the [Musical Instruments confirmation protocol](protocol/musical_instruments_v2.md) before opening that category. Re-running the commands below verifies the implementation; it does not create another untouched test result.
+The Video Games replay is exploratory after a corrected implementation defect. The fixed method was then evaluated on Musical Instruments as a fresh category. The [research note](reports/transfer_note.md) describes the evaluation design and its limits. Re-running the commands below verifies the implementation; it does not create another untouched test result.
 
 ```powershell
 python -m reliability.benchmark --data data --category Video_Games --output runs/video-games-replay
@@ -60,7 +60,7 @@ The [exploratory neural extension](reports/neural_extension.md) records the meas
 
 ## Manuscript
 
-The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. It is also available as a [ResearchGate preprint](https://doi.org/10.13140/RG.2.2.16487.61607). Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
+The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. It is also available as a [ResearchGate preprint](https://www.researchgate.net/publication/414634917_When_Does_Personalization_Earn_the_Route_A_Full-Catalog_Temporal_Study_of_Guarded_Recommendation). Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
 
 ## What this demonstrates
 
@@ -77,7 +77,6 @@ The 5-core dataset was retrospectively filtered using the full corpus; a review 
 | Path | Purpose |
 | --- | --- |
 | `reliability/` | Training, full-catalog evaluation, bundle verification and local service |
-| `protocol/` | Designs committed before the corresponding category outcome |
 | `reports/` | Public-safe aggregates and research interpretation |
 | `paper/` | Manuscript PDF, source and build instructions |
 | `web/` | Dependency-free synthetic browser demo with static fallback |

@@ -22,7 +22,6 @@ def allowed(relative: str) -> bool:
         return True
     return (len(parts) == 2 and
             ((parts[0] in {"reliability", "tests"} and parts[1].endswith(".py")) or
-             (parts[0] == "protocol" and parts[1].endswith(".md")) or
              (parts[0] == "reports" and parts[1].endswith((".md", ".json")))))
 
 
