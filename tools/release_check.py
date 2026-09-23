@@ -12,7 +12,7 @@ ROOT_FILES = {".gitignore", ".gitattributes", "README.md", "DATA_LICENSE.md", "L
               "CITATION.cff", "pyproject.toml"}
 EXACT = {"web/index.html", "web/app.js", "web/demo_bundle.json",
          ".github/workflows/verify.yml", ".github/workflows/pages.yml",
-         "tools/release_check.py", "paper/main.tex", "paper/main.pdf", "paper/README.md"}
+         "tools/release_check.py", "tools/signal_audit.py", "paper/main.tex", "paper/main.pdf", "paper/README.md"}
 FORBIDDEN_JSON_KEYS = {"user_id", "parent_asin", "history", "target", "ranked", "weights", "model"}
 
 
