@@ -1,0 +1,8 @@
+# Python, caches, local experiments and data
+__pycache__/
+.pytest_cache/
+.venv/
+data/
+runs/
+*.pyc
+*.egg-info/
