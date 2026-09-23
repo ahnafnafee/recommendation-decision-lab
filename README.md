@@ -60,7 +60,7 @@ The [exploratory neural extension](reports/neural_extension.md) records the meas
 
 ## Manuscript
 
-The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
+The [paper](paper/main.pdf) presents the temporal comparison, neural challenger, guarded service, and limits in one standalone article. It is also available as a [ResearchGate preprint](https://doi.org/10.13140/RG.2.2.16487.61607). Its [LaTeX source](paper/main.tex) and [build instructions](paper/README.md) are included for inspection.
 
 ## What this demonstrates
 
