@@ -57,6 +57,66 @@ class ServiceTests(unittest.TestCase):
         with urlopen(request, timeout=5) as response:
             return json.load(response)
 
+    def send(self, path, payload=None):
+        if payload is None:
+            with urlopen(self.base + path, timeout=5) as response:
+                return json.load(response)
+        request = Request(self.base + path, json.dumps(payload).encode(),
+                          {"Content-Type": "application/json"})
+        with urlopen(request, timeout=5) as response:
+            return json.load(response)
+
+    def test_a_sentence_is_answered_and_held_without_a_product_library(self):
+        answered = self.send("/api/utterance", {"phrase": "a warm tube amp, not a pedalboard",
+                                                "history": ["atlas", "comet"]})
+        self.assertEqual(answered["said"], "a warm tube amp, not a pedalboard")
+        self.assertIn("amp", answered["heard"])
+        self.assertIn("pedalboard", answered["ruled_out"])
+        self.assertEqual(answered["answering"], "behavioural")
+        self.assertEqual(answered["phrase_fallback"], "text_corpus_unavailable")
+        self.assertEqual(answered["spoken"], [])
+        self.assertEqual(answered["combined"], answered["active"])
+        self.assertEqual(answered["held"], 0)
+        with self.assertRaises(HTTPError) as caught:
+            self.send("/api/utterance", {"phrase": "   "})
+        self.assertEqual(caught.exception.code, 400)
+        caught.exception.close()
+
+    def test_a_held_sentence_answers_when_nothing_new_is_asked(self):
+        class StubRanker:
+            def prepare(self, history):
+                return tuple(history)
+
+            def route(self, utterance, prepared):
+                return {"orbit": 1.0}, {}
+
+            def rank_from(self, prepared, attraction, repulsion, ceiling=None, k=10):
+                return ("orbit", "signal")[:k]
+
+        before = self.send("/api/ambient")
+        self.assertFalse(before["offered"])
+        self.assertEqual(before["fallback"], "no_standing_sentence")
+        self.app.language = StubRanker()
+        answered = self.send("/api/utterance", {"phrase": "something quiet for a small room",
+                                                "history": ["atlas"], "k": 2})
+        self.assertEqual(answered["answering"], "spoken")
+        self.assertIsNone(answered["phrase_fallback"])
+        self.assertEqual([item["id"] for item in answered["spoken"]], ["orbit", "signal"])
+        self.assertEqual([item["id"] for item in answered["combined"]], ["orbit", "signal"])
+        self.assertEqual(answered["held"], 1)
+        offered = self.send("/api/ambient")
+        self.assertTrue(offered["offered"])
+        self.assertEqual(offered["said"], "something quiet for a small room")
+        self.assertEqual([item["id"] for item in offered["spoken"]], ["orbit", "signal"])
+        self.assertGreater(offered["offered_from_request"], 0)
+        with urlopen(self.base + "/api/health") as response:
+            self.assertEqual(json.load(response)["product_text"], "no product text loaded")
+        with urlopen(self.base + "/api/metrics") as response:
+            counts = json.load(response)["counts"]
+        self.assertEqual(counts["phrase_requests"], 2)
+        self.assertEqual(counts["offerings"], 2)
+        self.assertEqual(counts["sentences_held"], 1)
+
     def test_health_live_shadow_and_failure_fallback(self):
         with urlopen(self.base + "/api/health") as response:
             self.assertEqual(json.load(response)["status"], "ok")
