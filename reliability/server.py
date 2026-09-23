@@ -26,6 +26,46 @@ PROFILES = {
     "mixed": ["harbor", "signal"],
     "new": [],
 }
+MAX_PHRASE_CHARS = 400
+HELD_SENTENCES = 8
+
+
+def language_route(model: Recommender, directory: Path, category: str, *,
+                   use_embeddings: bool = False, device: str = "auto",
+                   baseline: str = "recent", alpha: float = .75, weight: float = 1.0,
+                   repulsion: float = .5, price_penalty: float = .5,
+                   enforce_ceiling: bool = True):
+    """A ranker that answers in words, plus the real product names behind it.
+
+    An interactive box is phrase-first: the sentence chooses, the behavioural
+    scores break the tie. That is a different question from the measured arm,
+    which asks whether ambient wording is worth more than a feed and therefore
+    confines the phrase to the behavioural shortlist. Here the phrase may reach
+    the whole shelf, because someone who asks for something specific expects to
+    be answered rather than nudged. What the sentence rules out is subtracted at
+    `repulsion`, so "not a pedal" costs a pedal, and a figure the person names is
+    treated as a limit rather than a hint: a product whose recorded price is above it
+    is not offered, while products with no recorded price stay eligible because the
+    archive is silent about them rather than contrary.
+    """
+    from .language import TextRanker, build_index, load_corpus
+
+    catalogue = set(model.lifetime)
+    corpus, manifest = load_corpus(Path(directory), category, catalogue=catalogue)
+    index, _ = build_index(corpus, catalogue=catalogue)
+    vectors = None
+    if use_embeddings:
+        from .embeddings import load_embeddings
+
+        vectors, _ = load_embeddings(Path(directory), category,
+                                     expected_corpus_sha256=str(manifest.get("corpus_sha256")),
+                                     device=device)
+    ranker = TextRanker(model, index, alpha=alpha, baseline=baseline, weight=weight,
+                        repulsion=repulsion, price_penalty=price_penalty, embeddings=vectors,
+                        enforce_ceiling=enforce_ceiling)
+    titles = {item: str(record.get("title") or item) for item, record in corpus.items()}
+    return ranker, titles
+
 
 
 def demo_model():
@@ -45,7 +85,8 @@ def demo_model():
 class RecommendationApp:
     def __init__(self, model: Recommender, baseline: str = "recent", alpha: float = .75,
                  gate_open: bool = False, titles: dict[str, str] | None = None,
-                 label: str = "invented demo", neural=None, neural_gate_open: bool = False):
+                 label: str = "invented demo", neural=None, neural_gate_open: bool = False,
+                 language=None, language_note: str = "no product text loaded"):
         if baseline not in ("lifetime", "recent") or not 0 <= alpha <= 1:
             raise ValueError("invalid serving decision")
         self.model = model
@@ -56,9 +97,13 @@ class RecommendationApp:
         self.label = label
         self.neural = neural
         self.neural_gate_open = neural_gate_open
+        self.language = language
+        self.language_note = language_note
+        self.standing: list[dict] = []
         self.counts = Counter()
         self.latencies = deque(maxlen=1000)
         self.lock = Lock()
+
 
     def recommend(self, history: list[str], k: int = 5, simulate_failure: bool = False):
         if (not isinstance(history, list) or len(history) > 200 or
@@ -107,13 +152,90 @@ class RecommendationApp:
             if fallback or neural_fallback:
                 self.counts["fallbacks"] += 1
             self.latencies.append(elapsed_ms)
-        decorate = lambda items: [{"id": item, "title": self.titles.get(item, item)} for item in items]
+        decorate = self.decorate
+
         return {"active": decorate(active_items), "baseline": decorate(baseline_items),
                 "shadow": decorate(shadow), "neural_shadow": decorate(neural_shadow),
                 "neural_gate_open": self.neural_gate_open, "neural_fallback": neural_fallback,
                 "method": method, "fallback": fallback,
                 "gate_open": self.gate_open, "alpha": self.alpha,
                 "data_scope": self.label, "local_rank_ms": round(elapsed_ms, 3)}
+
+    def decorate(self, items):
+        return [{"id": item, "title": self.titles.get(item, item)} for item in items]
+
+    def hear(self, phrase: str, history: list[str] | None = None, k: int = 5,
+             remember: bool = True):
+        """Answer something the person said, and show what the behavioural route would do.
+
+        The words are parsed into what to look for, what to rule out, and a budget.
+        Whatever the phrase cannot answer, the validated behavioural route still does,
+        and both are reported side by side rather than merged into one number.
+        """
+        if not isinstance(phrase, str) or not phrase.strip():
+            raise ValueError("phrase must be a non-empty string")
+        if len(phrase) > MAX_PHRASE_CHARS:
+            raise ValueError(f"phrase must be at most {MAX_PHRASE_CHARS} characters")
+        result = self.recommend(history or [], k)
+        from .language import parse_utterance
+
+        utterance = parse_utterance(phrase)
+        started = perf_counter()
+        spoken: tuple[str, ...] = ()
+        note = None
+        if self.language is None:
+            note = "text_corpus_unavailable"
+        elif utterance.empty:
+            note = "nothing_to_match"
+        else:
+            prepared = self.language.prepare(tuple(history or ()))
+            attraction, repulsion = self.language.route(utterance, prepared)
+            spoken = self.language.rank_from(prepared, attraction, repulsion,
+                                             utterance.price_ceiling, k)
+            if not spoken:
+                note = "phrase_matched_nothing"
+        phrase_ms = (perf_counter() - started) * 1000
+        result.update({"said": phrase.strip(), "heard": list(utterance.positive),
+                       "ruled_out": list(utterance.negative),
+                       "budget": utterance.price_ceiling,
+                       "spoken": self.decorate(spoken),
+                       "combined": self.decorate(spoken or [row["id"] for row in result["active"]]),
+                       "answering": "spoken" if spoken else "behavioural",
+                       "phrase_fallback": note, "product_text": self.language_note,
+                       "phrase_ms": round(phrase_ms, 3)})
+        with self.lock:
+            self.counts["phrase_requests"] += 1
+            if note is None:
+                self.counts["phrase_answers"] += 1
+            if remember and note is None:
+                self.standing.append({"phrase": phrase.strip(), "history": list(history or ()),
+                                      "k": k, "at_request": self.counts["requests"]})
+                del self.standing[:-HELD_SENTENCES]
+                self.counts["sentences_held"] += 1
+            result["held"] = len(self.standing)
+        return result
+
+    def offer(self, k: int = 5):
+        """Volunteer a product list from a sentence the person already left with us.
+
+        Nothing new is submitted here: the request carries no wording, and the
+        answer comes from a sentence held from earlier in the same session.
+        """
+        with self.lock:
+            held = dict(self.standing[-1]) if self.standing else None
+            request_number = self.counts["requests"]
+        if held is None:
+            with self.lock:
+                self.counts["offerings"] += 1
+            return {"offered": False, "held": 0, "spoken": [], "combined": [],
+                    "answering": "none", "fallback": "no_standing_sentence",
+                    "data_scope": self.label}
+        answer = self.hear(held["phrase"], held["history"], held.get("k", k), remember=False)
+        answer.update({"offered": True, "offered_from_request": held["at_request"],
+                       "offered_after_requests": request_number - held["at_request"]})
+        with self.lock:
+            self.counts["offerings"] += 1
+        return answer
 
     def metrics(self):
         with self.lock:
@@ -150,7 +272,10 @@ def handler_factory(app: RecommendationApp):
                 return self.respond(200, file.read_bytes(), content_type)
             if path == "/api/health":
                 return self.respond(200, {"status": "ok", "data_scope": app.label,
-                                          "catalog_items": len(app.model.lifetime)})
+                                          "catalog_items": len(app.model.lifetime),
+                                          "product_text": app.language_note})
+            if path == "/api/ambient":
+                return self.respond(200, app.offer())
             if path == "/api/metrics":
                 return self.respond(200, app.metrics())
             if path == "/api/profiles" and app.label == "invented demo":
@@ -158,19 +283,28 @@ def handler_factory(app: RecommendationApp):
             return self.respond(404, {"error": "not found"})
 
         def do_POST(self):
-            if urlsplit(self.path).path != "/api/recommend":
+            path = urlsplit(self.path).path
+            if path not in ("/api/recommend", "/api/utterance"):
                 return self.respond(404, {"error": "not found"})
+            fields = ({"history", "k", "simulate_failure"} if path == "/api/recommend"
+                      else {"phrase", "history", "k", "remember"})
             try:
                 size = int(self.headers.get("Content-Length", "0"))
                 if not 0 < size <= 16_384:
                     raise ValueError("request body must be 1–16384 bytes")
                 request = json.loads(self.rfile.read(size))
-                if not isinstance(request, dict) or set(request) - {"history", "k", "simulate_failure"}:
+                if not isinstance(request, dict) or set(request) - fields:
                     raise ValueError("invalid request fields")
-                if not isinstance(request.get("simulate_failure", False), bool):
-                    raise ValueError("simulate_failure must be boolean")
-                result = app.recommend(request.get("history", []), request.get("k", 5),
-                                       request.get("simulate_failure", False))
+                if path == "/api/recommend":
+                    if not isinstance(request.get("simulate_failure", False), bool):
+                        raise ValueError("simulate_failure must be boolean")
+                    result = app.recommend(request.get("history", []), request.get("k", 5),
+                                           request.get("simulate_failure", False))
+                else:
+                    if not isinstance(request.get("remember", True), bool):
+                        raise ValueError("remember must be boolean")
+                    result = app.hear(request.get("phrase", ""), request.get("history", []),
+                                      request.get("k", 5), request.get("remember", True))
             except (ValueError, TypeError, json.JSONDecodeError) as error:
                 with app.lock:
                     app.counts["invalid_requests"] += 1
@@ -188,6 +322,10 @@ def main():
     parser.add_argument("--neural-weights", type=Path)
     parser.add_argument("--neural-aggregate", type=Path)
     parser.add_argument("--neural-train", type=Path)
+    parser.add_argument("--text", type=Path, help="directory of locally fetched product text")
+    parser.add_argument("--embeddings", action="store_true",
+                        help="add the sentence-embedding route to the phrase answer")
+    parser.add_argument("--device", default="auto")
     args = parser.parse_args()
     if bool(args.bundle) != bool(args.aggregate):
         parser.error("--bundle and --aggregate must be supplied together")
@@ -220,6 +358,24 @@ def main():
             app.neural_gate_open = bool(neural_decision["gate_open"])
     else:
         app = RecommendationApp(demo_model(), titles=TITLES)
+    if args.embeddings and not args.text:
+        parser.error("--embeddings needs --text")
+    if args.text:
+        if not args.bundle:
+            parser.error("--text needs --bundle: invented items have no product text")
+        started = perf_counter()
+        try:
+            ranker, titles = language_route(app.model, args.text, manifest["category"],
+                                            use_embeddings=args.embeddings, device=args.device,
+                                            baseline=app.baseline, alpha=app.alpha)
+        except (ValueError, FileNotFoundError, RuntimeError) as error:
+            print(f"phrase answers unavailable, behavioural route still serves: {error}",
+                  flush=True)
+        else:
+            app.language, app.titles = ranker, titles
+            app.language_note = f"{len(titles)} product descriptions under {args.text}"
+            print(f"phrase answers ready: {app.language_note} in "
+                  f"{(perf_counter() - started):.1f}s", flush=True)
     with ThreadingHTTPServer(("127.0.0.1", args.port), handler_factory(app)) as server:
         print(f"Local demo: http://127.0.0.1:{server.server_port}/", flush=True)
         server.serve_forever()

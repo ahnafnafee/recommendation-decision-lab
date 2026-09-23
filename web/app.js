@@ -128,6 +128,79 @@ async function start() {
   await compare();
 }
 
+let held = 0;
+
+function renderEvidence(data) {
+  const parts = [];
+  if (data.heard?.length) parts.push(`used: ${data.heard.join(', ')}`);
+  if (data.ruled_out?.length) parts.push(`ruled out: ${data.ruled_out.join(', ')}`);
+  if (data.budget != null) parts.push(`budget up to $${data.budget}`);
+  $('phrase-evidence').textContent = data.said
+    ? `Because you said “${data.said}”${parts.length ? ` · ${parts.join(' · ')}` : ''}`
+    : 'Nothing asked yet.';
+}
+
+function heldNote(count) {
+  $('standing-note').textContent = count
+    ? `${count} sentence${count > 1 ? 's' : ''} held from this session. “Offer without asking” answers from the last one, with nothing typed in.`
+    : 'No sentence held yet, so there is nothing to offer unprompted.';
+}
+
+function sampleAnswer(phrase, history) {
+  // Product text stays on the machine it was fetched on. A page served without
+  // the local service can therefore show the words it understood, but not the
+  // catalogue they point at — so the behavioural route answers here.
+  return { said: phrase, heard: (phrase.toLowerCase().match(/[a-z0-9]+/g) || []).slice(0, 12),
+           ruled_out: [], budget: null, spoken: [], active: staticRecommend(history, false).active,
+           combined: staticRecommend(history, false).active, answering: 'behavioural',
+           phrase_fallback: 'service_unavailable', held: 0 };
+}
+
+async function speak(standing = false) {
+  const typed = $('phrase').value.trim();
+  if (!typed && !standing) { $('phrase-status').textContent = 'Type a sentence first.'; return; }
+  $('phrase-status').textContent = standing ? 'Offering from a sentence you already left…' : 'Matching your words…';
+  const history = $('history').value.split(',').map(value => value.trim()).filter(Boolean);
+  try {
+    let data;
+    if (staticBundle) {
+      data = sampleAnswer(standing ? '' : typed, history);
+    } else {
+      if (standing) {
+        const response = await fetch('/api/ambient');
+        data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        if (!data.offered) throw new Error(data.fallback.replaceAll('_', ' '));
+      } else {
+        const response = await fetch('/api/utterance', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phrase: typed, history, k: 5, remember: true })
+        });
+        data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+      }
+    }
+    renderList('phrase-list', data.spoken);
+    renderList('phrase-answer', data.combined);
+    renderList('phrase-behavioural', data.active || []);
+    renderEvidence(data);
+    held = Math.max(held, data.held || 0);
+    heldNote(held);
+    $('phrase-route').textContent = data.answering === 'spoken'
+      ? 'Your wording answered this. The behavioural route is beside it, not hidden inside it.'
+      : 'Your wording matched no product, so the behavioural route answered instead.';
+    const note = data.phrase_fallback ? ` · ${data.phrase_fallback.replaceAll('_', ' ')}` : '';
+    const ms = data.phrase_ms == null ? 'static preview' : `${data.phrase_ms} ms in-process`;
+    $('phrase-status').textContent = `${data.offered ? 'Offered without being asked' : data.answering === 'spoken' ? 'Answered from your words' : 'Answered from history'} · ${ms}${note}`;
+    await refreshMetrics();
+  } catch (error) {
+    $('phrase-status').textContent = `Could not answer: ${error.message}`;
+  }
+}
+
 $('run').onclick = () => compare();
 $('failure').onclick = () => compare(true);
+$('ask').onclick = () => speak();
+$('offer').onclick = () => speak(true);
+$('phrase').addEventListener('keydown', event => { if (event.key === 'Enter') speak(); });
 start();

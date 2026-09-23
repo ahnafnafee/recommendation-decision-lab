@@ -60,6 +60,17 @@
       </div>
       <div class="failure"><button class="outline" id="failure">Simulate challenger failure</button><span>Demonstrates the fallback path without changing the model or claiming a production outage.</span></div>
     </section>
+    <section>
+      <div class="section-head"><h2>Say it, see it</h2><p>Write a sentence in your own words. The wording selects products from locally held product text and rules out what you ruled out. A figure you name is treated as a limit: products recorded above it are not offered, and products with no recorded price stay. No microphone is involved: the sentence is what you type, and the behavioural route stays visible beside it.</p></div>
+      <div class="input-row"><input id="phrase" aria-label="Say what you are looking for" placeholder="a warm tube amp for a small room, not a pedalboard"><button class="outline" id="ask">Answer in words</button><button class="outline" id="offer">Offer without asking</button></div>
+      <div class="status"><span class="dot"></span><span id="phrase-status">Waiting for a sentence…</span></div>
+      <div class="grid">
+        <article><h3>What your words selected</h3><p id="phrase-evidence">Nothing asked yet.</p><ol id="phrase-list"></ol></article>
+        <article><h3>Behavioural route</h3><p>Answered from review history alone, as above.</p><ol id="phrase-behavioural"></ol></article>
+        <article class="active-lane"><h3>Answer</h3><p id="phrase-route">The wording answers when it can; otherwise the behavioural route does.</p><ol id="phrase-answer"></ol></article>
+      </div>
+      <p class="failure"><span id="standing-note">No sentence held yet, so there is nothing to offer unprompted.</span></p>
+    </section>
     <section class="reading"><div><div class="eyebrow">Evidence boundary</div><h2>What the numbers say</h2><p>The Video Games challenger improved NDCG@10 from 0.00715 to 0.01017 in a corrected exploratory replay. In the untouched Musical Instruments category it rose from 0.00801 to 0.00868. Absolute scores remain low, and new catalog items account for many misses. The conditional interval on Musical Instruments barely excludes zero.</p></div><div><div class="eyebrow">System boundary</div><h2>What the demo proves</h2><p>This loopback service supports a real locally trained bundle, reports route and fallback reasons, exposes health and aggregate request metrics, and never writes submitted histories to a log. The in-browser profiles are synthetic. Local ranking time is not a production latency claim.</p><p id="metrics">No requests yet.</p></div></section>
   </main>
   <footer>Ahnaf An Nafee · Source and reproducibility instructions are in the repository. Dataset rows, review histories, and fitted weights are not included.</footer>
