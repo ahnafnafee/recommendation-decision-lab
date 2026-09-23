@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recommendation Decision Lab</title>
+  <style>
+    :root { color-scheme: dark; --ink:#eaf0ec; --muted:#a6b7b5; --edge:#344746; --panel:#132724; --accent:#b9f385; --warm:#f8bb70; }
+    * { box-sizing:border-box } body { margin:0; background:radial-gradient(circle at 82% 8%,#234338 0,#0b1718 46%,#091315 100%); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    a { color:var(--accent) } button,input { font:inherit } button { cursor:pointer } button:focus-visible,input:focus-visible { outline:3px solid var(--warm); outline-offset:3px }
+    header,main,footer { max-width:1260px; margin:auto; padding-left:26px; padding-right:26px }
+    header { display:flex; align-items:center; justify-content:space-between; padding-top:28px; padding-bottom:25px; border-bottom:1px solid var(--edge) }
+    .brand { font-weight:750; letter-spacing:.02em } .badge { border:1px solid #74986b; border-radius:999px; color:var(--accent); padding:5px 12px; font-size:12px; letter-spacing:.1em; text-transform:uppercase }
+    .hero { padding-top:64px; padding-bottom:48px; display:grid; grid-template-columns:1.5fr 1fr; gap:50px; align-items:end }
+    .eyebrow { color:var(--accent); letter-spacing:.15em; text-transform:uppercase; font-size:12px; font-weight:800 }
+    h1 { font:500 clamp(42px,5vw,74px)/1.05 Georgia,serif; letter-spacing:-.045em; margin:15px 0 22px }
+    .hero p { max-width:640px; color:var(--muted); font-size:18px; margin:0 }
+    .hero aside { padding:23px; border:1px solid var(--edge); border-radius:18px; background:#142724bd; }
+    .hero aside strong { display:block; font-size:30px; color:var(--accent); line-height:1.15; margin:5px 0 } .hero aside span { color:var(--muted); font-size:13px }
+    .hero aside hr { border:0; border-top:1px solid var(--edge); margin:18px 0 }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:20px; margin:28px 0 16px }
+    h2 { font:500 30px/1.2 Georgia,serif; margin:0 } .section-head p { margin:0; color:var(--muted); max-width:520px; font-size:14px }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 15px }
+    .choice { background:#18312d; border:1px solid var(--edge); color:var(--ink); padding:10px 16px; border-radius:999px }
+    .choice.active { background:var(--accent); border-color:var(--accent); color:#15251b; font-weight:700 }
+    .input-row { display:flex; gap:10px; margin:0 0 15px }
+    input { width:min(650px,100%); border-radius:10px; background:#0a1a19; border:1px solid var(--edge); color:var(--ink); padding:11px 14px }
+    .outline { background:transparent; color:var(--accent); border:1px solid #83ad70; border-radius:10px; padding:10px 16px }
+    .status { display:flex; gap:10px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:14px; padding:12px 0 18px }
+    .status strong { color:var(--warm) } .dot { width:9px; height:9px; border-radius:50%; background:var(--warm); display:inline-block }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px }
+    article { background:var(--panel); border:1px solid var(--edge); border-radius:18px; padding:22px; min-height:350px; }
+    article.active-lane { border-color:#84b970; box-shadow:0 0 0 1px #84b97044 inset }
+    article h3 { font-size:16px; margin:0 0 2px } article p { color:var(--muted); font-size:13px; margin:0 0 16px }
+    ol { margin:0; padding:0; list-style:none; counter-reset:item } li { counter-increment:item; border-top:1px solid #29413d; padding:10px 0; display:flex; gap:12px; align-items:center; min-height:44px } li::before { content:counter(item,decimal-leading-zero); font:700 12px monospace; color:#7fac91 }
+    .reading { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:30px 0 50px }
+    .reading > div { padding:22px; border:1px solid var(--edge); background:#102320; border-radius:16px }
+    .reading p { color:var(--muted); font-size:14px; margin:10px 0 0 }
+    .failure { margin:20px 0 0; display:flex; gap:12px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:14px }
+    footer { border-top:1px solid var(--edge); color:var(--muted); padding-top:20px; padding-bottom:34px; font-size:13px }
+    @media(max-width:880px) { .hero,.grid,.reading { grid-template-columns:1fr } .hero { gap:20px; padding-top:44px } .grid article { min-height:auto } .section-head { display:block } }
+  </style>
+</head>
+<body>
+  <header><div class="brand">RECOMMENDATION / DECISION LAB</div><span class="badge">Local demonstrator</span></header>
+  <main>
+    <section class="hero">
+      <div><div class="eyebrow">Ahnaf An Nafee · research systems</div><h1>A recommendation should earn its place.</h1><p>Compare a transparent popularity fallback with a personalized challenger. The active route follows a validation decision; a failed or unsupported challenger falls back without hiding what happened.</p></div>
+      <aside><span>Fresh-category offline check · Musical Instruments</span><strong>+0.000674 NDCG@10</strong><span>Challenger minus recent popularity on 35,905 eligible review requests; paired interval [+0.000040, +0.001338]. This is a small offline gain, not online engagement.</span><hr><span>Video Games is exploratory after an implementation defect was found and fixed. Both domains use retrospectively filtered 5-core review data.</span></aside>
+    </section>
+    <section>
+      <div class="section-head"><h2>Inspect a decision</h2><p>Profiles and names below are invented. They illustrate the same ranking and fallback functions without redistributing review records or fitted weights.</p></div>
+      <div class="controls" id="profiles"></div>
+      <div class="input-row"><input id="history" aria-label="Previously reviewed item IDs" placeholder="Prior item IDs, comma separated"><button class="outline" id="run">Compare</button></div>
+      <div class="status"><span class="dot"></span><span id="status">Loading local model…</span></div>
+      <div class="grid">
+        <article><h3>Popularity baseline</h3><p>Deterministic, simple, and always available.</p><ol id="baseline"></ol></article>
+        <article><h3>Personalized challenger</h3><p>Co-review neighborhood blended with the baseline.</p><ol id="shadow"></ol></article>
+        <article class="active-lane"><h3>Active response</h3><p id="route-explanation">Chosen before any held-out outcome.</p><ol id="active"></ol></article>
+      </div>
+      <div class="failure"><button class="outline" id="failure">Simulate challenger failure</button><span>Demonstrates the fallback path without changing the model or claiming a production outage.</span></div>
+    </section>
+    <section class="reading"><div><div class="eyebrow">Evidence boundary</div><h2>What the numbers say</h2><p>The Video Games challenger improved NDCG@10 from 0.00715 to 0.01017 in a corrected exploratory replay. In the untouched Musical Instruments category it rose from 0.00801 to 0.00868. Absolute scores remain low, and new catalog items account for many misses. The conditional interval on Musical Instruments barely excludes zero.</p></div><div><div class="eyebrow">System boundary</div><h2>What the demo proves</h2><p>This loopback service supports a real locally trained bundle, reports route and fallback reasons, exposes health and aggregate request metrics, and never writes submitted histories to a log. The in-browser profiles are synthetic. Local ranking time is not a production latency claim.</p><p id="metrics">No requests yet.</p></div></section>
+  </main>
+  <footer>Ahnaf An Nafee · Source and reproducibility instructions are in the repository. Dataset rows, review histories, and fitted weights are not included.</footer>
+  <script>
+    const $ = id => document.getElementById(id);
+    let selected = 'cosmic', profiles = {};
+    function renderList(id, rows) { $(id).replaceChildren(...rows.map(row => { const li=document.createElement('li'); li.textContent=row.title; return li; })); }
+    async function refreshMetrics(){ const response=await fetch('/api/metrics'); const data=await response.json(); $('metrics').textContent=`Local requests: ${data.counts.requests||0} · fallbacks: ${data.counts.fallbacks||0} · in-process p95: ${data.local_rank_ms.p95??'—'} ms`; }
+    async function compare(simulateFailure=false){
+      const history=$('history').value.split(',').map(v=>v.trim()).filter(Boolean);
+      $('status').textContent='Ranking…';
+      try { const response=await fetch('/api/recommend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({history,k:5,simulate_failure:simulateFailure})}); const data=await response.json(); if(!response.ok) throw new Error(data.error); renderList('baseline',data.baseline);renderList('shadow',data.shadow);renderList('active',data.active); $('status').innerHTML=''; const strong=document.createElement('strong'); strong.textContent=data.method==='hybrid'?'Challenger active':'Baseline active'; $('status').append(strong,document.createTextNode(` · ${data.fallback||'validation gate passed'} · ${data.data_scope} · ${data.local_rank_ms} ms local ranking`)); $('route-explanation').textContent=data.fallback?`Fallback reason: ${data.fallback.replaceAll('_',' ')}.`:'Validation-approved challenger for this local model.'; await refreshMetrics(); } catch(error) { $('status').textContent=`Request failed: ${error.message}`; }
+    }
+    async function start(){
+      try { const response=await fetch('/api/profiles'); if(response.ok){ const data=await response.json(); profiles=data.profiles; for(const [name,items] of Object.entries(profiles)){const button=document.createElement('button');button.className='choice'+(name===selected?' active':'');button.textContent=name[0].toUpperCase()+name.slice(1);button.onclick=()=>{selected=name;document.querySelectorAll('.choice').forEach(b=>b.classList.remove('active'));button.classList.add('active');$('history').value=items.join(', ');compare();};$('profiles').append(button);} $('history').value=profiles[selected].join(', '); } else { $('status').textContent='Real local bundle loaded. Enter item IDs to compare routes.'; } await compare(); } catch(error){ $('status').textContent=`Service unavailable: ${error.message}`; }
+    }
+    $('run').onclick=()=>compare(); $('failure').onclick=()=>compare(true); start();
+  </script>
+</body>
+</html>

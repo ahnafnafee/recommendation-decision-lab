@@ -1,0 +1,108 @@
+{
+  "source": "https://amazon-reviews-2023.github.io/data_processing/5core.html",
+  "experiment": "Musical_Instruments 5-core global temporal split",
+  "source_sha256": {
+    "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+    "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac",
+    "test": "ceef5e289000a6ef77fe83a590a0168973689c19f89cb52a24defcf6a0924d30"
+  },
+  "validation_decision": {
+    "baseline": "recent",
+    "challenger_alpha": 0.75,
+    "gate_open": true,
+    "validation_interval": {
+      "delta": 0.0012538119668424027,
+      "lower": 0.0004220061257854118,
+      "upper": 0.002049086692749002,
+      "users": 13908,
+      "draws": 1000
+    },
+    "candidate_ndcg": {
+      "0.25": {
+        "ndcg_at_10": 0.010913999896740615,
+        "recall_at_10": 0.022092783808431146
+      },
+      "0.5": {
+        "ndcg_at_10": 0.011862046538454324,
+        "recall_at_10": 0.024004942193981114
+      },
+      "0.75": {
+        "ndcg_at_10": 0.011969058017970349,
+        "recall_at_10": 0.023151825375812667
+      },
+      "1.0": {
+        "ndcg_at_10": 0.004460087327970976,
+        "recall_at_10": 0.008413496896419851
+      }
+    },
+    "lifetime": {
+      "ndcg_at_10": 0.00817344992270708,
+      "recall_at_10": 0.014708910658076663
+    },
+    "recent": {
+      "ndcg_at_10": 0.010715246051127945,
+      "recall_at_10": 0.02150442738210808
+    },
+    "training": {
+      "rows": 427957,
+      "users": 54483,
+      "items": 22753,
+      "positive_rows": 367558
+    },
+    "validation": {
+      "rows": 41284,
+      "below_positive_threshold": 7291,
+      "seen_target_excluded": 0,
+      "new_item_targets": 3666,
+      "empty_history": 1288,
+      "eligible_requests": 33993,
+      "eligible_users": 13908
+    },
+    "source_sha256": {
+      "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+      "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac"
+    },
+    "protocol": "protocol/video_games_v1.md"
+  },
+  "test": {
+    "baseline": {
+      "ndcg_at_10": 0.008007053676229099,
+      "recall_at_10": 0.015903077565798635
+    },
+    "challenger": {
+      "ndcg_at_10": 0.008681159647990063,
+      "recall_at_10": 0.01718423617880518
+    },
+    "active_route": {
+      "ndcg_at_10": 0.008681159647990063,
+      "recall_at_10": 0.01718423617880518
+    },
+    "challenger_minus_baseline": {
+      "delta": 0.0006741059717609642,
+      "lower": 4.002188538339936e-05,
+      "upper": 0.001337576980592324,
+      "users": 11648,
+      "draws": 1000
+    },
+    "cohort": {
+      "rows": 42595,
+      "below_positive_threshold": 6690,
+      "seen_target_excluded": 0,
+      "new_item_targets": 12305,
+      "empty_history": 1186,
+      "eligible_requests": 35905,
+      "eligible_users": 11648
+    },
+    "local_cpu_request_ms": {
+      "p50": 0.19040000006498303,
+      "p95": 0.75970000034431,
+      "scope": "Python ranking of baseline and challenger; no HTTP, initialization, or disk loading"
+    }
+  },
+  "limitations": [
+    "5-core selection uses full-corpus support",
+    "review activity is not exposure or online utility",
+    "one fixed temporal split",
+    "user-cluster interval conditions on fitted model and fixed period"
+  ]
+}

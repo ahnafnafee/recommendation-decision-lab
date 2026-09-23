@@ -1,0 +1,108 @@
+{
+  "source": "https://amazon-reviews-2023.github.io/data_processing/5core.html",
+  "experiment": "Video_Games 5-core global temporal split",
+  "source_sha256": {
+    "train": "7def785f0c13f33d088bf322c725fcd415b6cf7c319998aec628b59ecaee6fe9",
+    "valid": "73f0da782dbe5a1f4281420d5b46a12a6abbeb3da02e1a69eff70a8ffb988a24",
+    "test": "2f555d60e772bf32a83aa2da9b4feaf9d2590b8c663ad7456b28be16119c4689"
+  },
+  "validation_decision": {
+    "baseline": "recent",
+    "challenger_alpha": 0.75,
+    "gate_open": true,
+    "validation_interval": {
+      "delta": 0.007334502763252445,
+      "lower": 0.006039253326786407,
+      "upper": 0.008642870226939879,
+      "users": 12550,
+      "draws": 1000
+    },
+    "candidate_ndcg": {
+      "0.25": {
+        "ndcg_at_10": 0.012795212636536745,
+        "recall_at_10": 0.024825881824309143
+      },
+      "0.5": {
+        "ndcg_at_10": 0.014742428955794954,
+        "recall_at_10": 0.02860780348985247
+      },
+      "0.75": {
+        "ndcg_at_10": 0.019425138729751275,
+        "recall_at_10": 0.03620909158990489
+      },
+      "1.0": {
+        "ndcg_at_10": 0.010428421860451837,
+        "recall_at_10": 0.01947127986220325
+      }
+    },
+    "lifetime": {
+      "ndcg_at_10": 0.005043889885492731,
+      "recall_at_10": 0.010035198082827828
+    },
+    "recent": {
+      "ndcg_at_10": 0.01209063596649883,
+      "recall_at_10": 0.023103422451883474
+    },
+    "training": {
+      "rows": 736827,
+      "users": 91562,
+      "items": 22976,
+      "positive_rows": 592599
+    },
+    "validation": {
+      "rows": 34510,
+      "below_positive_threshold": 7804,
+      "seen_target_excluded": 0,
+      "new_item_targets": 7591,
+      "empty_history": 1148,
+      "eligible_requests": 26706,
+      "eligible_users": 12550
+    },
+    "source_sha256": {
+      "train": "7def785f0c13f33d088bf322c725fcd415b6cf7c319998aec628b59ecaee6fe9",
+      "valid": "73f0da782dbe5a1f4281420d5b46a12a6abbeb3da02e1a69eff70a8ffb988a24"
+    },
+    "protocol": "protocol/video_games_v1.md"
+  },
+  "test": {
+    "baseline": {
+      "ndcg_at_10": 0.007151245617714392,
+      "recall_at_10": 0.01324447443900793
+    },
+    "challenger": {
+      "ndcg_at_10": 0.010171740553223717,
+      "recall_at_10": 0.019430853157865136
+    },
+    "active_route": {
+      "ndcg_at_10": 0.010171740553223717,
+      "recall_at_10": 0.019430853157865136
+    },
+    "challenger_minus_baseline": {
+      "delta": 0.0030204949355093253,
+      "lower": 0.0022159899470601584,
+      "upper": 0.0038809000891115233,
+      "users": 11554,
+      "draws": 1000
+    },
+    "cohort": {
+      "rows": 43249,
+      "below_positive_threshold": 7687,
+      "seen_target_excluded": 0,
+      "new_item_targets": 22051,
+      "empty_history": 1566,
+      "eligible_requests": 35562,
+      "eligible_users": 11554
+    },
+    "local_cpu_request_ms": {
+      "p50": 0.11449999874457717,
+      "p95": 0.6109000005380949,
+      "scope": "Python ranking of baseline and challenger; no HTTP, initialization, or disk loading"
+    }
+  },
+  "limitations": [
+    "5-core selection uses full-corpus support",
+    "review activity is not exposure or online utility",
+    "one fixed temporal split",
+    "user-cluster interval conditions on fitted model and fixed period"
+  ]
+}

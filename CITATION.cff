@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Please cite this software and the Amazon Reviews'23 dataset source when using this work."
+type: software
+title: "Recommendation Decision Lab"
+version: 0.1.0
+authors:
+  - family-names: "Nafee"
+    given-names: "Ahnaf An"
+license: MIT
+abstract: "A validation-gated recommendation service with reproducible temporal evaluation on two product-review categories."
+keywords:
+  - recommender systems
+  - temporal evaluation
+  - research engineering
