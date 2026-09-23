@@ -2,6 +2,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[margin=0.82in]{geometry}
 \usepackage{amsmath,booktabs,microtype}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref}
 \setlength{\emergencystretch}{2em}
 \title{When Does Personalization Earn the Route?\\A Full-Catalog Temporal Study of Guarded Recommendation}
@@ -40,7 +42,7 @@ The baseline scores each train-known item by either its lifetime count of positi
 
 Before test rows are opened, a paired user-cluster bootstrap with 1,000 draws estimates the validation difference between the best challenger and its baseline. The route opens only if the lower endpoint of the percentile 95\% interval is positive. Test reporting uses the saved selection and the same paired bootstrap procedure; the interval conditions on fitted models and one fixed test period. This gate is an operational rule, not a guarantee of future superiority. Sparse neighbor scoring produces the same top ten as scanning the train-known catalog because items without a neighbor adjustment retain their baseline order; exact-ranking tests check that property.
 
-Video Games supplied the development evidence. Its reported replay is exploratory because the implementation was corrected during that phase. The corrected method and a training-to-ranking regression check were fixed before acquiring Musical Instruments, whose category test is the fresh check for this method. Both categories come from one platform and one benchmark construction.
+The method was developed on Video Games and fixed before the Musical Instruments test was opened. Video Games is therefore development evidence, while Musical Instruments is the fixed-method category check. Both categories come from one platform and one benchmark construction.
 
 \section{Results}
 \begin{table}[ht]
@@ -58,9 +60,62 @@ Musical Instruments & 35,905 & 22,753 & 0.008007 & 0.008681 \\
 \end{tabular}
 \end{table}
 
-Both categories selected recent popularity and a hybrid weight of 0.75 on validation. In Musical Instruments, the 35,905 eligible test requests came from 11,648 users. The hybrid-minus-baseline NDCG@10 difference was 0.000674 [0.000040, 0.001338], and Recall@10 moved from 0.015903 to 0.017184. The interval excludes zero under the specified user resampling scheme, though its lower endpoint is close to zero. Video Games produced a larger exploratory difference of 0.003020 [0.002216, 0.003881] on 35,562 requests; that replay is not an independent confirmation.
+Both categories selected recent popularity and a hybrid weight of 0.75 on validation. In Musical Instruments, the 35,905 eligible test requests came from 11,648 users. The hybrid-minus-baseline NDCG@10 difference was 0.000674 [0.000040, 0.001338], and Recall@10 moved from 0.015903 to 0.017184. The interval excludes zero under the specified user resampling scheme, though its lower endpoint is close to zero. Video Games produced a larger exploratory difference of 0.003020 [0.002216, 0.003881] on 35,562 requests; that replay is not an independent confirmation. Figure~\ref{fig:paired-differences} makes the difference in effect size and uncertainty visible without treating these comparisons as equivalent confirmation tests.
 
-Catalog coverage helps explain the low absolute scores. In Musical Instruments, 12,305 eligible test targets were absent from the 22,753-item training catalog. Video Games had 22,051 such targets among 35,562 requests. No reordering of train-known items can recover those requests. The measured hybrid gain thus sits inside a larger coverage limitation, and the test cannot establish that a user would engage with any recommended product.
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.76\linewidth, height=2.45in,
+    xmin=-1.25, xmax=4.15, ymin=0.5, ymax=3.5,
+    xtick={-1,0,1,2,3,4}, ytick={1,2,3},
+    yticklabels={Neural validation,Musical Instruments test,Video Games test},
+    yticklabel style={font=\footnotesize},
+    xlabel={Paired difference in NDCG@10 ($\times 10^{-3}$)},
+    xmajorgrids, grid style={gray!25},
+    axis x line=bottom, axis y line=left,
+    tick align=outside,
+]
+\addplot[gray,densely dashed,forget plot] coordinates {(0,0.55) (0,3.45)};
+\addplot[gray!70!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(2.216,3) (3.881,3)};
+\addplot[gray!70!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(3.020,3)};
+\addplot[blue!70!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(0.040,2) (1.338,2)};
+\addplot[blue!70!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(0.674,2)};
+\addplot[orange!80!black,very thick,mark=|,mark size=4pt,forget plot] coordinates {(-0.985,1) (0.611,1)};
+\addplot[orange!80!black,only marks,mark=*,mark size=2.5pt,forget plot] coordinates {(-0.195,1)};
+\end{axis}
+\end{tikzpicture}
+\caption{Paired NDCG@10 differences with user-cluster bootstrap 95\% intervals. The two test rows compare hybrid with popularity; Musical Instruments is the fixed-method check and Video Games is exploratory. The later neural validation row compares the blended neural challenger with the active hybrid on Musical Instruments, not another test confirmation. Intervals condition on fitted models and one temporal period.}
+\label{fig:paired-differences}
+\end{figure}
+
+Catalog coverage helps explain the low absolute scores. In Musical Instruments, 12,305 eligible test targets were absent from the 22,753-item training catalog. Video Games had 22,051 such targets among 35,562 requests. Figure~\ref{fig:catalog-coverage} shows how much of each test cohort is outside the frozen catalog. No reordering of train-known items can recover those requests. The measured hybrid gain thus sits inside a larger coverage limitation, and the test cannot establish that a user would engage with any recommended product.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    xbar stacked, width=0.82\linewidth, height=2.15in,
+    xmin=0, xmax=39000, bar width=15pt,
+    ytick={1,2}, yticklabels={Musical Instruments,Video Games},
+    yticklabel style={font=\footnotesize},
+    xlabel={Eligible positive-review test requests},
+    xtick={0,10000,20000,30000}, xticklabels={0,10k,20k,30k},
+    scaled x ticks=false,
+    xmajorgrids, grid style={gray!25},
+    enlarge y limits=0.4,
+    legend style={at={(0.5,-0.4)},anchor=north,legend columns=2,column sep=12pt,draw=none,font=\footnotesize},
+    tick align=outside,
+]
+\addplot[fill=blue!65,draw=blue!70!black] coordinates {(23600,1) (13511,2)};
+\addlegendentry{Target in training catalog}
+\addplot[fill=gray!55,draw=gray!70!black] coordinates {(12305,1) (22051,2)};
+\addlegendentry{Target absent from training catalog}
+\end{axis}
+\end{tikzpicture}
+\caption{Frozen-catalog coverage of eligible test requests. The two segments sum to 35,905 Musical Instruments and 35,562 Video Games requests. Targets absent from the training catalog remain evaluation misses for every model; the chart does not imply those items were available to recommend at request time.}
+\label{fig:catalog-coverage}
+\end{figure}
 
 \subsection{Neural challenger}
 The later experiment trains a two-tower retriever on 313,522 chronological pairs from positive Musical Instruments training reviews. A query tower pools embeddings of up to 20 prior distinct positive items and applies a small residual multilayer perceptron; an item tower embeds training products. Both towers produce normalized 64-dimensional vectors. Training uses three epochs of in-batch softmax at temperature 0.15, masking duplicate targets and products already known positive for a query so they are not treated as negatives. The learned model scores the train-known item array exactly, while items without positive training support are ineligible for its neural route. Requests without a supported history fall back to popularity.
@@ -70,7 +125,7 @@ On validation, the unblended neural model scored 0.001411 NDCG@10. Selecting a b
 \section{Guarded service and reproducibility}
 The public implementation serves baseline, co-review shadow, optional neural shadow, active ranking, and an explicit fallback reason through a loopback HTTP API. A saved validation decision determines the active route. Empty or unsupported histories and challenger failures return the popularity baseline. A local model bundle checks its source hash before serving; optional neural weights and their training source are checked as well. A synthetic browser walkthrough illustrates these decisions with invented users and product names. Its controls do not alter the measured results.
 
-The measured in-process Python ranking p95 was 0.611 ms for the corrected Video Games replay and 0.760 ms for Musical Instruments, including baseline and co-review challenger scoring but excluding HTTP, loading, concurrency, and network time. The neural batch-ranking timing has a different scope and is not a like-for-like service latency comparison. The repository contains source, protocols, aggregate JSON results, and tests at \url{https://github.com/ahnafnafee/recommendation-decision-lab}. Downloaded review files, row-level predictions, and fitted weights are not redistributed. The dataset remains available from its owner subject to the owner's terms~\cite{amazon5core}.
+The measured in-process Python ranking p95 was 0.611 ms for the Video Games replay and 0.760 ms for Musical Instruments, including baseline and co-review challenger scoring but excluding HTTP, loading, concurrency, and network time. The neural batch-ranking timing has a different scope and is not a like-for-like service latency comparison. The repository contains source, protocols, aggregate JSON results, and tests at \url{https://github.com/ahnafnafee/recommendation-decision-lab}. Downloaded review files, row-level predictions, and fitted weights are not redistributed. The dataset remains available from its owner subject to the owner's terms~\cite{amazon5core}.
 
 \section{Limitations and conclusion}
 The 5-core subset was formed using support across the full corpus, which retrospectively selects users and products. Review activity is not an impression, purchase, or unbiased preference label. Our user-cluster intervals hold the fitted models and temporal period fixed and do not account for shared-item dependence, model refitting, selection across methods, or future regimes. The second category tests a different product domain within the same platform, not transfer to a new service. The neural route was assessed after the category test was known, and one compact architecture does not exhaust learned retrieval methods.
