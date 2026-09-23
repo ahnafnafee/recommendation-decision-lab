@@ -7,3 +7,14 @@ runs/
 build/
 *.pyc
 *.egg-info/
+
+# LaTeX intermediates; paper/main.pdf is the tracked artifact
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
