@@ -1,0 +1,471 @@
+{
+  "experiment": "Musical_Instruments phrased recommendation arm",
+  "source": "https://amazon-reviews-2023.github.io/data_processing/5core.html",
+  "status": "exploratory; this category's test period was already opened by earlier studies",
+  "aggregate_scope": "full frozen test split; configuration selected on validation and recorded in validation_decision.json before the test split was read",
+  "source_sha256": {
+    "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+    "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac",
+    "test": "ceef5e289000a6ef77fe83a590a0168973689c19f89cb52a24defcf6a0924d30"
+  },
+  "validation_decision": {
+    "category": "Musical_Instruments",
+    "source_sha256": {
+      "train": "9d46d0cea3eb04ceb220c7233fa341a4b30229f07d08b8b53639b73a69e523b2",
+      "valid": "7528d112fcf73508b655cc071959bf8da25452aa1d161d5cc61d4e178dd51eac"
+    },
+    "training": {
+      "rows": 427957,
+      "users": 54483,
+      "items": 22753,
+      "positive_rows": 367558
+    },
+    "text": {
+      "corpus_sha256": "711f0ef22665a7746c3455c699d2d401729fd100532e242c03163c45d6d1ae21",
+      "voices_sha256": "b780fd9417661cd32ae92a22066a4d7a6bd7e2ffa64a857c3a6e97015278294e",
+      "people_with_own_words": 55981,
+      "published_pairs": 157,
+      "items_with_titles": 22751,
+      "review_limit": 4,
+      "phrase_index": "all-MiniLM-L6-v2 encoded on cuda",
+      "indexed": 22753,
+      "without_any_text": 0,
+      "with_price": 14927,
+      "documents": 22753,
+      "distinct_terms": 85061,
+      "document_length_median": 150,
+      "documents_with_zero_text": 0
+    },
+    "baseline": "recent",
+    "alpha": 0.75,
+    "baseline_ndcg_at_10": 0.011969,
+    "configs_scored": [
+      {
+        "weight": 0.25,
+        "repulsion": 0.0,
+        "price_penalty": 0.5
+      },
+      {
+        "weight": 0.5,
+        "repulsion": 0.0,
+        "price_penalty": 0.5
+      },
+      {
+        "weight": 0.75,
+        "repulsion": 0.0,
+        "price_penalty": 0.5
+      },
+      {
+        "weight": 0.75,
+        "repulsion": 0.5,
+        "price_penalty": 0.5
+      },
+      {
+        "weight": 0.75,
+        "repulsion": 0.0,
+        "price_penalty": 0.0
+      }
+    ],
+    "own_words_ndcg_by_config": {
+      "{\"weight\": 0.25, \"repulsion\": 0.0, \"price_penalty\": 0.5}": 0.013017,
+      "{\"weight\": 0.5, \"repulsion\": 0.0, \"price_penalty\": 0.5}": 0.012302,
+      "{\"weight\": 0.75, \"repulsion\": 0.0, \"price_penalty\": 0.5}": 0.011555,
+      "{\"weight\": 0.75, \"repulsion\": 0.5, \"price_penalty\": 0.5}": 0.010555,
+      "{\"weight\": 0.75, \"repulsion\": 0.0, \"price_penalty\": 0.0}": 0.011618
+    },
+    "selected_config": {
+      "weight": 0.25,
+      "repulsion": 0.0,
+      "price_penalty": 0.5,
+      "rule": "best validation own_words NDCG@10, then smaller weights"
+    },
+    "candidate_cap": 200,
+    "phrase_scope": "behavioural",
+    "promotion_scope_depth": 2000,
+    "own_words_scrubbed_tokens_mean": 0.042,
+    "validation": {
+      "requests": 33993,
+      "base": {
+        "ndcg_at_10": 0.011969058017970349,
+        "recall_at_10": 0.023151825375812667
+      },
+      "conditions": {
+        "own_words": {
+          "requests": 33993,
+          "phrased_requests": 32380,
+          "phrase_coverage": 0.9525,
+          "ndcg_at_10": 0.013017,
+          "recall_at_10": 0.023858,
+          "surfaced_in_top_three": 0.011149,
+          "ndcg_minus_base": {
+            "delta": 0.001048,
+            "lower": -6.2e-05,
+            "upper": 0.002109,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": false
+        },
+        "own_words_scrubbed": {
+          "requests": 33993,
+          "phrased_requests": 32380,
+          "phrase_coverage": 0.9525,
+          "ndcg_at_10": 0.011944,
+          "recall_at_10": 0.02174,
+          "surfaced_in_top_three": 0.009973,
+          "ndcg_minus_base": {
+            "delta": -2.5e-05,
+            "lower": -0.00112,
+            "upper": 0.001012,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": false
+        },
+        "cross_words": {
+          "requests": 33993,
+          "phrased_requests": 32380,
+          "phrase_coverage": 0.9525,
+          "ndcg_at_10": 0.004789,
+          "recall_at_10": 0.009149,
+          "surfaced_in_top_three": 0.003883,
+          "ndcg_minus_base": {
+            "delta": -0.00718,
+            "lower": -0.008018,
+            "upper": -0.006258,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": false
+        },
+        "target_title": {
+          "requests": 33993,
+          "phrased_requests": 30326,
+          "phrase_coverage": 0.8921,
+          "ndcg_at_10": 0.140425,
+          "recall_at_10": 0.256523,
+          "surfaced_in_top_three": 0.126761,
+          "ndcg_minus_base": {
+            "delta": 0.128455,
+            "lower": 0.125377,
+            "upper": 0.131298,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": true
+        },
+        "random_title": {
+          "requests": 33993,
+          "phrased_requests": 33993,
+          "phrase_coverage": 1.0,
+          "ndcg_at_10": 0.00381,
+          "recall_at_10": 0.006854,
+          "surfaced_in_top_three": 0.003295,
+          "ndcg_minus_base": {
+            "delta": -0.008159,
+            "lower": -0.009121,
+            "upper": -0.007261,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": false
+        },
+        "published": {
+          "requests": 33993,
+          "phrased_requests": 854,
+          "phrase_coverage": 0.0251,
+          "ndcg_at_10": 0.015237,
+          "recall_at_10": 0.025358,
+          "surfaced_in_top_three": 0.012944,
+          "ndcg_minus_base": {
+            "delta": 0.003268,
+            "lower": 0.002668,
+            "upper": 0.003849,
+            "users": 13908,
+            "draws": 1000
+          },
+          "paired_gate_open": true
+        }
+      },
+      "phrase_route_reach": {
+        "own_words": {
+          "chances": 32380,
+          "target_reached": 1782,
+          "reach": 0.055
+        },
+        "own_words_scrubbed": {
+          "chances": 32380,
+          "target_reached": 1518,
+          "reach": 0.0469
+        },
+        "cross_words": {
+          "chances": 32380,
+          "target_reached": 303,
+          "reach": 0.0094
+        },
+        "target_title": {
+          "chances": 30326,
+          "target_reached": 30326,
+          "reach": 1.0
+        },
+        "random_title": {
+          "chances": 33993,
+          "target_reached": 276,
+          "reach": 0.0081
+        },
+        "published": {
+          "chances": 854,
+          "target_reached": 448,
+          "reach": 0.5246
+        }
+      },
+      "behavioural_shortlist": {
+        "requests": 33993,
+        "answer_was_in_scope": 15362,
+        "coverage": 0.4519
+      }
+    },
+    "agreement_own_words_vs_published": [
+      {
+        "config": {
+          "weight": 0.25,
+          "repulsion": 0.0,
+          "price_penalty": 0.5
+        },
+        "requests_compared": 31,
+        "mean_spearman": 0.4774,
+        "median_overlap_at_depth": 14
+      },
+      {
+        "config": {
+          "weight": 0.5,
+          "repulsion": 0.0,
+          "price_penalty": 0.5
+        },
+        "requests_compared": 21,
+        "mean_spearman": 0.3121,
+        "median_overlap_at_depth": 14
+      },
+      {
+        "config": {
+          "weight": 0.75,
+          "repulsion": 0.0,
+          "price_penalty": 0.5
+        },
+        "requests_compared": 20,
+        "mean_spearman": 0.2468,
+        "median_overlap_at_depth": 13
+      }
+    ]
+  },
+  "test": {
+    "requests": 35905,
+    "base": {
+      "ndcg_at_10": 0.008681159647990063,
+      "recall_at_10": 0.01718423617880518
+    },
+    "conditions": {
+      "own_words": {
+        "requests": 35905,
+        "phrased_requests": 25926,
+        "phrase_coverage": 0.7221,
+        "ndcg_at_10": 0.007399,
+        "recall_at_10": 0.014093,
+        "surfaced_in_top_three": 0.006016,
+        "ndcg_minus_base": {
+          "delta": -0.001282,
+          "lower": -0.001944,
+          "upper": -0.000577,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": false
+      },
+      "own_words_scrubbed": {
+        "requests": 35905,
+        "phrased_requests": 25926,
+        "phrase_coverage": 0.7221,
+        "ndcg_at_10": 0.00707,
+        "recall_at_10": 0.013731,
+        "surfaced_in_top_three": 0.005626,
+        "ndcg_minus_base": {
+          "delta": -0.001612,
+          "lower": -0.0023,
+          "upper": -0.000892,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": false
+      },
+      "cross_words": {
+        "requests": 35905,
+        "phrased_requests": 25926,
+        "phrase_coverage": 0.7221,
+        "ndcg_at_10": 0.005363,
+        "recall_at_10": 0.010138,
+        "surfaced_in_top_three": 0.004595,
+        "ndcg_minus_base": {
+          "delta": -0.003319,
+          "lower": -0.003975,
+          "upper": -0.002704,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": false
+      },
+      "target_title": {
+        "requests": 35905,
+        "phrased_requests": 23600,
+        "phrase_coverage": 0.6573,
+        "ndcg_at_10": 0.103368,
+        "recall_at_10": 0.191756,
+        "surfaced_in_top_three": 0.091686,
+        "ndcg_minus_base": {
+          "delta": 0.094687,
+          "lower": 0.091624,
+          "upper": 0.097884,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": true
+      },
+      "random_title": {
+        "requests": 35905,
+        "phrased_requests": 35905,
+        "phrase_coverage": 1.0,
+        "ndcg_at_10": 0.002928,
+        "recall_at_10": 0.005236,
+        "surfaced_in_top_three": 0.002451,
+        "ndcg_minus_base": {
+          "delta": -0.005753,
+          "lower": -0.006553,
+          "upper": -0.004961,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": false
+      },
+      "published": {
+        "requests": 35905,
+        "phrased_requests": 681,
+        "phrase_coverage": 0.019,
+        "ndcg_at_10": 0.010814,
+        "recall_at_10": 0.018354,
+        "surfaced_in_top_three": 0.009191,
+        "ndcg_minus_base": {
+          "delta": 0.002132,
+          "lower": 0.001669,
+          "upper": 0.002622,
+          "users": 11648,
+          "draws": 1000
+        },
+        "paired_gate_open": true
+      }
+    },
+    "phrase_route_reach": {
+      "own_words": {
+        "chances": 25926,
+        "target_reached": 717,
+        "reach": 0.0277
+      },
+      "own_words_scrubbed": {
+        "chances": 25926,
+        "target_reached": 618,
+        "reach": 0.0238
+      },
+      "cross_words": {
+        "chances": 25926,
+        "target_reached": 194,
+        "reach": 0.0075
+      },
+      "target_title": {
+        "chances": 23600,
+        "target_reached": 23600,
+        "reach": 1.0
+      },
+      "random_title": {
+        "chances": 35905,
+        "target_reached": 247,
+        "reach": 0.0069
+      },
+      "published": {
+        "chances": 681,
+        "target_reached": 376,
+        "reach": 0.5521
+      }
+    },
+    "behavioural_shortlist": {
+      "requests": 35905,
+      "answer_was_in_scope": 11925,
+      "coverage": 0.3321
+    },
+    "own_words_by_target_popularity": {
+      "popularity_quintile_0": {
+        "requests": 14945,
+        "base_ndcg_at_10": 0.019396,
+        "own_words_ndcg_at_10": 0.016202
+      },
+      "popularity_quintile_1": {
+        "requests": 3964,
+        "base_ndcg_at_10": 0.002734,
+        "own_words_ndcg_at_10": 0.003408
+      },
+      "popularity_quintile_2": {
+        "requests": 2645,
+        "base_ndcg_at_10": 0.002478,
+        "own_words_ndcg_at_10": 0.002251
+      },
+      "popularity_quintile_3": {
+        "requests": 526,
+        "base_ndcg_at_10": 0.004436,
+        "own_words_ndcg_at_10": 0.004375
+      },
+      "popularity_quintile_4": {
+        "requests": 13825,
+        "base_ndcg_at_10": 0.000152,
+        "own_words_ndcg_at_10": 0.000128
+      }
+    },
+    "own_words_by_history_length": {
+      "history_0": {
+        "requests": 1186,
+        "base_ndcg_at_10": 0.006747,
+        "own_words_ndcg_at_10": 0.006747
+      },
+      "history_1": {
+        "requests": 3870,
+        "base_ndcg_at_10": 0.010217,
+        "own_words_ndcg_at_10": 0.008561
+      },
+      "history_2": {
+        "requests": 11121,
+        "base_ndcg_at_10": 0.010545,
+        "own_words_ndcg_at_10": 0.009089
+      },
+      "history_3": {
+        "requests": 14910,
+        "base_ndcg_at_10": 0.00843,
+        "own_words_ndcg_at_10": 0.007011
+      },
+      "history_4": {
+        "requests": 4818,
+        "base_ndcg_at_10": 0.004399,
+        "own_words_ndcg_at_10": 0.003929
+      }
+    },
+    "local_request_ms": {
+      "requests": 200,
+      "p50": 26.891,
+      "p95": 62.238,
+      "scope": "one phrase and one unravelling request; no HTTP, model load, or disk"
+    }
+  },
+  "limitations": [
+    "own_words, own_words_scrubbed, target_title and random_title are worded with the answer in view: only their paired difference to base is reportable, never their absolute score",
+    "own_words skips the target item's own text, yet a person's earlier sentences can still name the product they had already decided on; the scrubbed column measures how much of any gain is that, and it is a diagnostic, not a fix",
+    "published phrases are few and were written for other purposes, so that column anchors phrase shape rather than carrying the result",
+    "product prose is cut at the train cutoff, but a person's own sentences inside the evaluation period can describe the item they went on to review",
+    "one fixed temporal split per category, aggregate output only",
+    "product text and published phrases are fetched locally under their own licences, which this repository does not redistribute"
+  ]
+}

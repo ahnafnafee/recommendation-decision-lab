@@ -21,8 +21,12 @@ release boundary reported by `tools/release_check.py` unchanged; the tracked PDF
 updated only when the manuscript itself changes.
 
 The main temporal and neural results, signal audit, and shadow-profile values are
-recorded in aggregate JSON under `reports/`. The wording pilot is tabulated in
-`reports/phrase_to_products.md`, with its measurement command in the top-level README.
+recorded in aggregate JSON under `reports/`, alongside the measured wording arm's
+full test-split aggregates (`musical_phrase_exploratory.json`,
+`video_games_phrase_exploratory.json` and the encoded-route
+`musical_phrase_dense_exploratory.json`). The wording arm's protocol and reach
+table are tabulated in `reports/phrase_to_products.md`, with its measurement
+command in the top-level README.
 These artifacts contain no user-level predictions or fitted weights. The public code and aggregate results are at
 <https://github.com/ahnafnafee/recommendation-decision-lab>. Raw reviews, user-level
 outputs, and model weights remain local. The manuscript is also available as a

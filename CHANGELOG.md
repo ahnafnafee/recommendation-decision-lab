@@ -29,10 +29,18 @@ collected at the top.
   corpus and voices hashes every later artifact is checked against.
 - `reliability/phrasing.py`, the measured wording arm: six wording conditions scored against
   five weight configurations, with `validation_decision.json` written before the test split
-  is opened and the configuration chosen by a fixed recorded rule. In a pilot at 400
-  validation requests the arm had not cleared the activation gate under either promotion
-  scope, and the full run is still writing; it answers in the demo and does not displace the
+  is opened and the configuration chosen by a fixed recorded rule. On the full Musical
+  Instruments test split (35,905 requests) the selected confined configuration (phrase
+  weight 0.25, repulsion 0, price penalty 0.5) loses 0.001678 NDCG@10 against the same
+  frozen base (95% interval −0.002318 to −0.000980), and on the exploratory Video Games
+  split (35,562 requests) it loses 0.002858 (−0.003598 to −0.002195), so the confined arm
+  activates in neither category; it answers in the demo and does not displace the
   behavioural route.
+- A dense (encoded) measurement of the same wording arm on Musical Instruments, where
+  the embedding artifact exists: the all-MiniLM-L6-v2 route re-scores the same frozen
+  shortlist, is directionally positive on the validation cohort (0.001048, −0.000062 to
+  +0.002109), and loses 0.001282 on the full test split (−0.001944 to −0.000577), so the
+  gate stays closed on both routes.
 - `language` optional extra (`sentence-transformers`, `numpy`) for the encoded route.
 - Demo controls for the route: a sentence field and an *Offer without asking* button.
 - `product_text` in `GET /api/health`, and the `phrase_requests`, `phrase_answers`,
@@ -42,6 +50,11 @@ collected at the top.
 - `ARCHITECTURE.md`, `API.md`, `CONTRIBUTING.md` and this file.
 - `reports/phrase_to_products.md` (protocol, wording conditions, reach table) and
   `reports/phrase_to_products_survey.md` (the literature trail behind the design).
+- `reports/musical_phrase_exploratory.json`, `reports/video_games_phrase_exploratory.json`
+  and `reports/musical_phrase_dense_exploratory.json` (the last on the encoded route),
+  the full test-split aggregates of the measured wording arm: six wording conditions
+  against the frozen base, the selected configuration and its gate, reach diagnostics,
+  latency percentiles, and the configuration grid it was selected from.
 - `SECURITY.md`, which states what the demo service binds to, what it writes and its one
   outbound call; `CODE_OF_CONDUCT.md`; issue and pull request templates; and `[project.urls]`
   in `pyproject.toml` naming the repository, the issue tracker and this changelog.
@@ -71,6 +84,13 @@ collected at the top.
 - `tools/release_check.py` allowlists the new root documents.
 - The repository map and the demo section of `README.md` cover the wording route and the
   locally fetched corpus.
+- The wording section of `paper/main.tex` reports the full test-split measurements for the
+  measured arm in both categories — deltas, intervals, gates, the updated reach table and
+  in-process latency — together with the encoded (dense) variant on its validation cohort
+  and the Musical Instruments test split, and the repository documentation no longer
+  describes the arm as a pilot.
+- `reliability/shadow.py` labels its aggregate a "shadow-profile run" rather than a pilot,
+  and the committed `reports/musical_shadow_exploratory.json` matches.
 
 ### Fixed
 

@@ -47,8 +47,10 @@ compared. The split is deliberate; `tests/test_language.py` fixes both behaviour
 
 Someone who types a request expects to be answered, so the interactive route lets
 the sentence pick from the whole shelf. The measured question is different, and a
-catalogue-wide fusion is the wrong instrument for it: at 400 requests it *lost*
-0.0034 NDCG@10 against the same base. Production systems put the lexical and dense
+catalogue-wide fusion is the wrong instrument for it: in the 400-request
+validation pilot it *lost* 0.0034 NDCG@10 against the same base, and the
+full-scale measurement confines the phrase to the behavioural shortlist for
+exactly that reason. Production systems put the lexical and dense
 route inside candidate generation rather than in front of the ranking
 ([LIGER, arXiv:2411.18814](https://arxiv.org/abs/2411.18814);
 [Facebook EBR, arXiv:2006.11632](https://arxiv.org/abs/2006.11632)), so the frozen
@@ -91,31 +93,58 @@ configurations are run and reported separately; neither is presented as the othe
 
 ## What has been measured
 
-Musical Instruments, validation split, 400 requests, lexical index over 22,753
-product listings. Absolute NDCG@10 is around 0.008, so the deltas below are of the
-same order as the metric itself.
+Full test splits, read after the configuration was fixed on validation:
+35,905 Musical Instruments requests and 35,562 Video Games requests, scored
+with the lexical route in both categories and with the encoded route on
+Musical Instruments, selected confined configuration (phrase weight 0.25,
+repulsion 0, price penalty 0.5) chosen by the fixed rule from five scored
+configurations on the validation cohort (33,993 Musical Instruments requests;
+26,706 for Video Games; the encoded route selected the same configuration on
+its own validation pass) and recorded in `validation_decision.json` before
+the test split was read.
+Base NDCG@10 is 0.008681 (Musical Instruments) and 0.010172 (Video Games), so
+the deltas below are of the same order as the metric itself.
 
-| configuration | chosen weights | own-words delta | 95% lower | gate |
-| --- | --- | --- | --- | --- |
-| `behavioural` (primary) | weight 0.75, repulsion 0.5, price 0.5 | −0.00240 | −0.00878 | shut |
-| `catalogue` (naive comparison) | weight 0.25, repulsion 0, price 0.5 | −0.00337 | −0.00963 | shut |
+| category, split | own-words delta | 95% interval | gate |
+| --- | --- | --- | --- |
+| Musical Instruments, test, lexical | −0.001678 | −0.002318 to −0.000980 | shut |
+| Musical Instruments, test, encoded | −0.001282 | −0.001944 to −0.000577 | shut |
+| Video Games, test, lexical | −0.002858 | −0.003598 to −0.002195 | shut |
 
-Two ceilings explain the sign, and they multiply:
+The encoded variant (all-MiniLM-L6-v2 over the same shortlist, Musical
+Instruments only, where the embedding artifact exists) is directionally
+positive on the validation cohort (+0.001048, interval −0.000062 to
++0.002109) but loses on the full test split (−0.001282, interval −0.001944 to
+−0.000577), so the gate stays closed on both routes. Among conditions worded
+like something a person would type, only the published search phrase beats the
+base on the test split: +0.002394 by the lexical route and +0.002132 by the
+encoded route on Musical Instruments (intervals 0.001892 to 0.002875 and
+0.001669 to 0.002622, the same 681 requests) and +0.003115 on Video Games
+(0.002714 to 0.003545, 824 requests).
 
-| diagnostic | value | reading |
-| --- | --- | --- |
-| behavioural shortlist coverage | 86 / 400 = 21.5% | in 78.5% of requests the frozen behavioural route never considered the answer, so a confined phrase cannot promote it |
-| unconstrained phrase reach, `own_words` | 5 / 355 = 1.41% | the person's earlier words named the eventual answer's product almost never |
-| `cross_words` reach | 0.28% | somebody else's words are worse, as expected |
-| `target_title` reach | 177 / 177 = 100% | the matcher is not the weak link: the exact words of the product always find it |
-| `random_title` reach | 1 / 400 = 0.25% | and that is not an accident of a permissive index |
-| `published` reach | 2 / 5 = 40% | a real searcher's phrase for the product reaches far more often than the person's own prose |
+Two ceilings explain the sign, and they multiply (full reach table in the
+manuscript):
 
-The gap between `own_words` at 1.41% and `published` at 40% is the interesting
-number: retrieval is not the bottleneck, expression is. A person reviewing a
-keyboard six months ago wrote about their hands, not about the model they would
-later be shown. Under the frozen protocol that is reported as what language is
-worth on this data, not fixed by tuning the phrase weight until the sign flips.
+| diagnostic | Musical Instruments, test | Video Games, test | reading |
+| --- | --- | --- | --- |
+| behavioural shortlist coverage | 11,925 / 35,905 = 33.21% | 8,267 / 35,562 = 23.25% | in most requests the frozen behavioural route never considered the answer, so a confined phrase cannot promote it |
+| unconstrained phrase reach, `own_words` | 627 / 25,926 = 2.42% | 390 / 22,320 = 1.75% | the person's earlier words named the eventual answer's product almost never |
+| `cross_words` reach | 0.74% | 0.56% | somebody else's words are worse, as expected |
+| `target_title` reach | 99.98% | 99.97% | the matcher is not the weak link: the exact words of the product always find it |
+| `random_title` reach | 0.73% | 0.42% | and that is not an accident of a permissive index |
+| `published` reach | 47.72% | 33.50% | a real searcher's phrase for the product reaches far more often than the person's own prose |
+
+The gap between `own_words` at 2.42% and `published` at 47.72% is the
+interesting number: retrieval is not the bottleneck, expression is. A person
+reviewing a keyboard six months ago wrote about their hands, not about the
+model they would later be shown. Under the frozen protocol that is reported as
+what language is worth on this data, not fixed by tuning the phrase weight
+until the sign flips.
+
+In-process timing on the scored requests (one phrase and one unravelling
+request; no HTTP, model load, or disk): 38.3 ms median and 48.1 ms at the 95th
+percentile for Musical Instruments, 21.2 ms and 29.3 ms for Video Games, and
+26.9 ms and 62.2 ms for the encoded route on Musical Instruments.
 
 ## Data and artifacts
 
@@ -123,7 +152,8 @@ Product text is fetched locally into the Git-ignored `data/text/` directory from
  publishers' snapshot
 ([McAuley-Lab/Amazon-Reviews-2023](https://huggingface.co/datasets/McAuley-Lab/Amazon-Reviews-2023))
 or the origin mirror, with `tools/text_corpus.py`: 22,753 Musical Instruments
-listings, 55,981 people with their own review prose, corpus manifest schema 3.
+listings (55,981 people with their own review prose) and 22,976 Video Games
+listings (92,807 people), corpus manifest schema 3.
 Published query pairs are scarce — `blair-bench` (ESCI) plus `Amazon-C4` give 157
 in-catalogue Musical Instruments pairs and 271 for Video Games — which is why
 `published` is a diagnostic and not the headline condition.

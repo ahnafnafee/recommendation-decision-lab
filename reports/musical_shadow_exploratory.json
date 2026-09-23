@@ -1,6 +1,6 @@
 {
   "source": "https://amazon-reviews-2023.github.io/data_processing/5core.html",
-  "experiment": "Musical_Instruments shadow-profile pilot",
+  "experiment": "Musical_Instruments shadow-profile run",
   "status": "exploratory; this category's test period was already opened by earlier studies",
   "validation_decision": {
     "category": "Musical_Instruments",

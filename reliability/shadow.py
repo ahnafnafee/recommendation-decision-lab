@@ -551,7 +551,7 @@ def run(data: Path, destination: Path, category="Musical_Instruments", include_t
                 "source_sha256": {split: file_hash(paths[split]) for split in ("train", "valid")}}
     (destination / "validation_decision.json").write_text(json.dumps(decision, indent=2), encoding="utf-8")
 
-    aggregate = {"source": SOURCE, "experiment": f"{category} shadow-profile pilot",
+    aggregate = {"source": SOURCE, "experiment": f"{category} shadow-profile run",
                  "status": "exploratory; this category's test period was already opened by earlier studies",
                  "validation_decision": decision}
     if include_test:
