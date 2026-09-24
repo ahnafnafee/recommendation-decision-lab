@@ -102,8 +102,9 @@ collected at the top.
   0.006885); the encoded Musical Instruments route grows from +0.002132 to
   +0.004232 (0.003578 to 0.004884). With the full bank both sources contribute positively — ESCI
   +0.002500 / +0.003883, C4 +0.002431 / +0.002284, Musical Instruments /
-  Video Games — so the small observed-query slice's negative ESCI reading was
-  a sample artifact.
+  Video Games. The earlier negative ESCI reading reverses on the expanded
+  source, but the source population, splits, and judgement labels changed;
+  the reversal cannot be attributed to sample size alone.
 - `tools/phrase_source_audit.py`: when the hash-verified ESCI parquet is present in the
   cache, the source audit now also splits the ESCI contribution by judgement (exact match
   versus acceptable substitute) and reports a substitute-inclusive reach count — the share

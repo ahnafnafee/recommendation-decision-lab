@@ -134,9 +134,12 @@ split as its denominator, so the source contributions add to the mixed delta.
 
 The C4 pair counts in the catalog are 53 and 65; the ESCI counts are 1,913 and
 3,886, so the catalog carries 1,966 in-catalogue Musical Instruments pairs and
-3,951 Video Games pairs. The request counts are larger because the same target-linked phrase is used
-for multiple later review requests. The [source audit](musical_phrase_sources.json)
-and [Video Games counterpart](video_games_phrase_sources.json) are reproduced by
+3,951 Video Games pairs. The request counts are larger because the same
+target-linked phrase is used for multiple later review requests. Install
+`pip install -e ".[query-data]"` before staging the official ESCI parquet or
+reproducing the source audit; lexical matching and the local service do not
+require this extra. The [source audit](musical_phrase_sources.json) and
+[Video Games counterpart](video_games_phrase_sources.json) are reproduced by
 `python -m tools.phrase_source_audit --category Musical_Instruments` and the same
 command for `Video_Games`. This is a descriptive decomposition, not a separate
 confirmatory experiment. At full scale both sources contribute positively: the
@@ -144,8 +147,10 @@ official ESCI queries are the larger contributor in both categories (slightly
 so on Musical Instruments, clearly so on Video Games), while the rewrites keep
 the larger per-request effect (mean +0.1853 versus +0.0594 per matched request
 on Musical Instruments, +0.1485 versus +0.0881 on Video Games); the small
-observed-query slice that read the ESCI contribution as negative was a sample
-artifact.
+observed-query slice read the ESCI contribution as negative. That slice used
+BLaIR's filtered Exact-only test file, whereas this run uses both splits and
+Exact plus Substitute judgements from the full official dataset. The reversal
+therefore cannot be assigned to sample size alone.
 
 The audit also separates the ESCI pairs by their recorded judgement and, separately,
 asks whether the route reached a product judged an acceptable substitute for the
@@ -208,8 +213,8 @@ searcher wording; this is why `published` is a diagnostic and not the headline
 condition.
 `tools/build_text_index.py` encodes each listing with `all-MiniLM-L6-v2` (384
 dimensions, 2 reviews per product so the document fits the model's 256-token
-window). Everything heavier than the standard library sits behind an optional
-extra: `pip install -e ".[language]"`.
+window). The encoded route uses `pip install -e ".[language]"`; staging and
+auditing the official ESCI Parquet source use `pip install -e ".[query-data]"`.
 
 ## Limits
 

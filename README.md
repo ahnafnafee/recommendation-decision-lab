@@ -75,7 +75,12 @@ The [shadow-profile design note](reports/shadow_profile_design.md) records the m
 
 The committed route reads the `history` column attached to the current request and nothing else. It cannot answer someone who says what they want: a sentence with a negation in it and a price ceiling attached. This extension matches a typed sentence against product listings held locally, and reports what the wording selected beside the unchanged behavioural answer rather than merging the two into one number. Negation is scoped to the words after the cue and ends at a restart, so "not a pedalboard" costs a pedalboard its place, and a stated "under $300" keeps out products whose recorded price is above it, while products with no recorded price stay. Product text is fetched by you into the Git-ignored `data/text/`; this repository does not redistribute it.
 
+The official ESCI query file is Parquet. Install the `query-data` extra before
+staging that source or running its source audit; BM25 matching and local serving
+remain standard-library paths.
+
 ```powershell
+pip install -e ".[query-data]"
 python -m tools.text_corpus --data data --category Musical_Instruments --output data/text --source origin
 ```
 

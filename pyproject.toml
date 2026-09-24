@@ -33,6 +33,7 @@ Changelog = "https://github.com/ahnafnafee/recommendation-decision-lab/blob/mast
 [project.optional-dependencies]
 neural = ["torch>=2.11,<3", "numpy>=2,<3"]
 language = ["sentence-transformers>=6,<7", "numpy>=2,<3"]
+query-data = ["pyarrow>=20,<26"]
 
 [tool.setuptools.packages.find]
 include = ["reliability*"]

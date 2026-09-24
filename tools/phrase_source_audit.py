@@ -23,6 +23,7 @@ from reliability.benchmark import T1, file_hash, training_data
 from reliability.core import Recommender, ndcg_one_target
 from reliability.language import build_index, load_corpus, load_queries
 from reliability.phrasing import parse_utterance, ranker_for, timestamped_requests
+from tools.text_corpus import ESCI_EXAMPLES_SHA256
 
 
 REPORTS = {
@@ -43,7 +44,12 @@ def esci_label_view(cache: Path):
     target = cache / "shopping_queries_dataset_examples.parquet"
     if not target.exists():
         return None, None
-    import pyarrow.parquet as pq
+    if file_hash(target) != ESCI_EXAMPLES_SHA256:
+        raise ValueError("cached ESCI parquet differs from the pinned source")
+    try:
+        import pyarrow.parquet as pq
+    except ImportError as exc:
+        raise RuntimeError('ESCI source audit requires pip install -e ".[query-data]"') from exc
 
     table = pq.read_table(target, columns=["example_id", "query_id", "product_id",
                                            "product_locale", "esci_label"])

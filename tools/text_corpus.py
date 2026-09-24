@@ -214,7 +214,10 @@ def _fetch_query_source(origin: dict, cache: Path) -> tuple:
         return rows, {}
     if origin["format"] != "parquet":
         raise ValueError(f"unknown query source format {origin['format']!r}")
-    import pyarrow.parquet as pq
+    try:
+        import pyarrow.parquet as pq
+    except ImportError as exc:
+        raise RuntimeError('ESCI query staging requires pip install -e ".[query-data]"') from exc
 
     cache.mkdir(parents=True, exist_ok=True)
     target = cache / origin["cache_name"]
