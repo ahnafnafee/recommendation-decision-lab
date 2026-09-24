@@ -21,10 +21,10 @@
       "positive_rows": 592599
     },
     "text": {
-      "corpus_sha256": "b3fad66feb11b21e223673a1e6444fc7762d0ab19202550e945674ac3756c4c2",
-      "voices_sha256": "33e77727fbcafbed9cbb1d8b095715c82611c38741797b3a0cddedd70a6adc35",
+      "corpus_sha256": "743b6fdb8b30fb635cb4658b5868dac1480a4b48da9b0def2625489441f22845",
+      "voices_sha256": "ec134c31abcc94c4f72e3bff9c4d6ae5b02c32e84fb490e81b4e5d88f804765b",
       "people_with_own_words": 92807,
-      "published_pairs": 271,
+      "published_pairs": 3951,
       "items_with_titles": 22975,
       "review_limit": 4,
       "phrase_index": "lexical only",
@@ -172,15 +172,15 @@
         },
         "published": {
           "requests": 26706,
-          "phrased_requests": 1216,
-          "phrase_coverage": 0.0455,
-          "ndcg_at_10": 0.024583,
-          "recall_at_10": 0.046993,
-          "surfaced_in_top_three": 0.020857,
+          "phrased_requests": 3174,
+          "phrase_coverage": 0.1188,
+          "ndcg_at_10": 0.032014,
+          "recall_at_10": 0.059275,
+          "surfaced_in_top_three": 0.028346,
           "ndcg_minus_base": {
-            "delta": 0.005158,
-            "lower": 0.004529,
-            "upper": 0.005818,
+            "delta": 0.012589,
+            "lower": 0.011361,
+            "upper": 0.01373,
             "users": 12550,
             "draws": 1000
           },
@@ -214,9 +214,9 @@
           "reach": 0.0079
         },
         "published": {
-          "chances": 1216,
-          "target_reached": 429,
-          "reach": 0.3528
+          "chances": 3174,
+          "target_reached": 1814,
+          "reach": 0.5715
         }
       },
       "behavioural_shortlist": {
@@ -232,9 +232,9 @@
           "repulsion": 0.0,
           "price_penalty": 0.5
         },
-        "requests_compared": 30,
-        "mean_spearman": 0.5901,
-        "median_overlap_at_depth": 12
+        "requests_compared": 27,
+        "mean_spearman": 0.5694,
+        "median_overlap_at_depth": 14
       },
       {
         "config": {
@@ -243,7 +243,7 @@
           "price_penalty": 0.5
         },
         "requests_compared": 15,
-        "mean_spearman": 0.2177,
+        "mean_spearman": 0.295,
         "median_overlap_at_depth": 15
       },
       {
@@ -252,9 +252,9 @@
           "repulsion": 0.0,
           "price_penalty": 0.5
         },
-        "requests_compared": 13,
-        "mean_spearman": 0.0815,
-        "median_overlap_at_depth": 15
+        "requests_compared": 14,
+        "mean_spearman": 0.1567,
+        "median_overlap_at_depth": 13
       }
     ]
   },
@@ -347,15 +347,15 @@
       },
       "published": {
         "requests": 35562,
-        "phrased_requests": 824,
-        "phrase_coverage": 0.0232,
-        "ndcg_at_10": 0.013286,
-        "recall_at_10": 0.025898,
-        "surfaced_in_top_three": 0.011304,
+        "phrased_requests": 2115,
+        "phrase_coverage": 0.0595,
+        "ndcg_at_10": 0.016338,
+        "recall_at_10": 0.031157,
+        "surfaced_in_top_three": 0.014369,
         "ndcg_minus_base": {
-          "delta": 0.003115,
-          "lower": 0.002714,
-          "upper": 0.003545,
+          "delta": 0.006167,
+          "lower": 0.005505,
+          "upper": 0.006885,
           "users": 11554,
           "draws": 1000
         },
@@ -389,9 +389,9 @@
         "reach": 0.0042
       },
       "published": {
-        "chances": 824,
-        "target_reached": 276,
-        "reach": 0.335
+        "chances": 2115,
+        "target_reached": 1140,
+        "reach": 0.539
       }
     },
     "behavioural_shortlist": {
@@ -455,15 +455,15 @@
     },
     "local_request_ms": {
       "requests": 200,
-      "p50": 21.236,
-      "p95": 29.269,
+      "p50": 22.08,
+      "p95": 36.221,
       "scope": "one phrase and one unravelling request; no HTTP, model load, or disk"
     }
   },
   "limitations": [
     "own_words, own_words_scrubbed, target_title and random_title are worded with the answer in view: only their paired difference to base is reportable, never their absolute score",
     "own_words skips the target item's own text, yet a person's earlier sentences can still name the product they had already decided on; the scrubbed column measures how much of any gain is that, and it is a diagnostic, not a fix",
-    "published phrases are few and were written for other purposes, so that column anchors phrase shape rather than carrying the result",
+    "external query pairs are attached by known target; the ESCI queries are the full official Shopping Queries Dataset (US locale, judged an exact match or an acceptable substitute) while the Amazon-C4 rewrites are a small first-person set; the two sources must be read separately",
     "product prose is cut at the train cutoff, but a person's own sentences inside the evaluation period can describe the item they went on to review",
     "one fixed temporal split per category, aggregate output only",
     "product text and published phrases are fetched locally under their own licences, which this repository does not redistribute"

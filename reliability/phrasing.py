@@ -20,8 +20,9 @@ observed search queries. The first two conditions are what this running system c
 assemble. `own_words`, `own_words_scrubbed`, `target_title` and
 `random_title` are reported only as paired differences against `base`, never as
 absolute scores, because the wording was chosen with the answer in view. The
-`published` column is target-linked and small, so it anchors phrase shape rather
-than carrying a recommendation result. Its two source types must be read separately.
+`published` column is target-linked: each phrase was judged against the item it
+is meant to reach, so it measures how well external wording moves a ranking, not
+how a live query behaves. Its two source types must be read separately.
 
 Alongside the metric, each condition reports how often the products the phrase
 route reached actually contained the answer. That reach is the ceiling every later
@@ -554,8 +555,10 @@ def run(data: Path, destination: Path, text: Path | None = None,
                      "own_words skips the target item's own text, yet a person's earlier sentences can "
                      "still name the product they had already decided on; the scrubbed column measures "
                      "how much of any gain is that, and it is a diagnostic, not a fix",
-                     "external query pairs are few and attached by known target; the ESCI search "
-                     "queries and Amazon-C4 review-derived rewrites must be read separately",
+                     "external query pairs are attached by known target; the ESCI queries are the "
+                     "full official Shopping Queries Dataset (US locale, judged an exact match or "
+                     "an acceptable substitute) while the Amazon-C4 rewrites are a small first-person "
+                     "set; the two sources must be read separately",
                      "product prose is cut at the train cutoff, but a person's own sentences inside the "
                      "evaluation period can describe the item they went on to review",
                      "one fixed temporal split per category, aggregate output only",

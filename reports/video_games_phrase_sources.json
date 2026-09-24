@@ -2,24 +2,47 @@
   "category": "Video_Games",
   "scope": "fixed lexical diagnostic, full test denominator; source pairs attach by known target",
   "test_requests": 35562,
-  "combined_delta": 0.003115,
+  "combined_delta": 0.006167,
   "sources": {
     "c4": {
       "source_pairs_in_catalog": 65,
-      "matched_test_requests": 616,
-      "distinct_test_targets": 60,
-      "full_split_delta_contribution": 0.00269,
-      "improved_requests": 202,
+      "matched_test_requests": 547,
+      "distinct_test_targets": 47,
+      "full_split_delta_contribution": 0.002284,
+      "improved_requests": 171,
       "worsened_requests": 1
     },
     "esci": {
-      "source_pairs_in_catalog": 206,
-      "matched_test_requests": 208,
-      "distinct_test_targets": 64,
-      "full_split_delta_contribution": 0.000425,
-      "improved_requests": 37,
-      "worsened_requests": 4
+      "source_pairs_in_catalog": 3886,
+      "matched_test_requests": 1568,
+      "distinct_test_targets": 615,
+      "full_split_delta_contribution": 0.003883,
+      "improved_requests": 299,
+      "worsened_requests": 36
     }
   },
-  "interpretation": "Descriptive decomposition of a target-linked diagnostic, not evidence of live-query routing or independent confirmation. Repeated requests share a small set of query-item pairs."
+  "interpretation": "Descriptive decomposition of a target-linked diagnostic, not evidence of live-query routing or independent confirmation. Repeated requests share a small set of query-item pairs.",
+  "esci_label_split": {
+    "exact": {
+      "matched_test_requests": 1209,
+      "distinct_test_targets": 465,
+      "full_split_delta_contribution": 0.003537,
+      "improved_requests": 264,
+      "worsened_requests": 30
+    },
+    "substitute": {
+      "matched_test_requests": 359,
+      "distinct_test_targets": 150,
+      "full_split_delta_contribution": 0.000346,
+      "improved_requests": 35,
+      "worsened_requests": 6
+    }
+  },
+  "substitute_inclusive_reach": {
+    "matched_requests": 2115,
+    "strict_target_reached": 1140,
+    "reached_by_substitute_only": 97,
+    "substitute_inclusive_reached": 1237,
+    "note": "strict counts equal the saved run's phrase_route_reach by construction check; the substitute credit asks whether the route reached any product judged an acceptable substitute for that query. Descriptive, not a gate."
+  }
 }

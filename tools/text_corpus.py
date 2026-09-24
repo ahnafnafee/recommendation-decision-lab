@@ -1,13 +1,16 @@
 """Build a local product-text corpus for one evaluated category.
 
 The interaction archives in this repository carry ratings only, so every word
-that describes a product comes from the official Amazon Reviews'23 snapshot. Two
-streams are combined:
+that describes a product comes from the official Amazon Reviews'23 snapshot.
+Three streams are combined:
 
   review prose    reviewer-written headline and body, kept for the people and
                   items this lab evaluates, before the period end;
   listing text    the item's own title, brand, categories, features, description
-                  and price, where the snapshot still holds the listing.
+                  and price, where the snapshot still holds the listing;
+  query pairs     external phrase-to-item pairs restricted to catalogue items:
+                  observed ESCI shopping queries and Amazon-C4 review-derived
+                  rewrites, the only phrases in this lab written by somebody else.
 
 Each stream is a stage that writes its own filtered artifact, so an interrupted
 download costs only that stage. Merge turns the two into one corpus per item.
@@ -20,6 +23,7 @@ from __future__ import annotations
 import argparse
 import gzip
 from gzip import GzipFile
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -37,10 +41,22 @@ REVIEW_LIMIT = 12
 REVIEW_CHARS = 240
 # External phrase-to-item pairs whose items are catalogue ASINs. ESCI contains
 # observed search queries; Amazon-C4 contains review-derived query rewrites.
+# The ESCI source is the full official Shopping Queries Dataset, both splits and
+# all locales in one hash-pinned parquet that is fetched once into the
+# Git-ignored cache; the US locale and the exact or substitute judgements are
+# the pairs kept, so a kept phrase is one a real shopper typed that was judged
+# to find the item.
+ESCI_EXAMPLES = ("https://media.githubusercontent.com/media/amazon-science/esci-data/"
+                 "main/shopping_queries_dataset/shopping_queries_dataset_examples.parquet")
+ESCI_EXAMPLES_SHA256 = "4a735b693b4a424a6fc67f5be6e4c811495c488bbf66d02a602d308b2744263a"
+ESCI_COLUMNS = ("example_id", "query", "product_id", "product_locale", "esci_label", "split")
 QUERY_SOURCES = (
-    {"source": "esci", "repo": "McAuley-Lab/blair-bench", "path": "processed_esci/test.csv",
-     "note": "shopping queries people typed, judged against catalogue items"},
-    {"source": "c4", "repo": "McAuley-Lab/Amazon-C4", "path": "test.csv",
+    {"source": "esci", "format": "parquet", "url": ESCI_EXAMPLES,
+     "sha256": ESCI_EXAMPLES_SHA256, "cache_name": "shopping_queries_dataset_examples.parquet",
+     "locale": "us", "labels": ("E", "S"),
+     "note": "the full official ESCI Shopping Queries Dataset (both splits), US locale, "
+             "judged an exact match or acceptable substitute for the item"},
+    {"source": "c4", "format": "csv", "repo": "McAuley-Lab/Amazon-C4", "path": "test.csv",
      "note": "first-person queries rewritten from a review the person wrote about that item"},
 )
 QUERY_FIELDS = {"identifier": "qid", "query": "query", "item": "item_id"}
@@ -174,15 +190,76 @@ def _percentiles(values, points=(0.5, 0.9)):
             for point in points}
 
 
+def _fetch_query_source(origin: dict, cache: Path) -> tuple:
+    """One external query source, as an iterable of (identifier, text, item) rows.
+
+    A CSV source is the published test table, streamed row by row. The parquet
+    source is the full official ESCI file, fetched once into the Git-ignored
+    cache and verified against the hash published in the repository's LFS
+    pointer, then narrowed to the locale and judgements the entry declares.
+    Returns the rows and extras that the manifest records for transparency.
+    """
+    import csv
+    import io
+    from collections import Counter
+
+    if origin["format"] == "csv":
+        url = HF_FILE.format(repo=origin["repo"], path=origin["path"])
+        request = urllib.request.Request(url, headers={"User-Agent": "recommendation-decision-lab/0.1"})
+        with urllib.request.urlopen(request, timeout=300) as response:
+            body = response.read().decode("utf-8-sig")
+        rows = ((row.get(QUERY_FIELDS["identifier"]), row.get(QUERY_FIELDS["query"]),
+                 row.get(QUERY_FIELDS["item"]))
+                for row in csv.DictReader(io.StringIO(body)))
+        return rows, {}
+    if origin["format"] != "parquet":
+        raise ValueError(f"unknown query source format {origin['format']!r}")
+    import pyarrow.parquet as pq
+
+    cache.mkdir(parents=True, exist_ok=True)
+    target = cache / origin["cache_name"]
+    if not target.exists():
+        request = urllib.request.Request(origin["url"], headers={"User-Agent": "recommendation-decision-lab/0.1"})
+        with urllib.request.urlopen(request, timeout=600) as response:
+            with open(target, "wb") as handle:
+                while chunk := response.read(1 << 20):
+                    handle.write(chunk)
+        report(f"{origin['source']}: fetched {target.stat().st_size:,} bytes")
+    digest = hashlib.sha256(target.read_bytes()).hexdigest()
+    if digest != origin["sha256"]:
+        raise ValueError(f"{origin['source']} cached file hash {digest} does not match {origin['sha256']}")
+    report(f"{origin['source']}: cached file matches the published LFS object")
+    table = pq.read_table(target, columns=list(ESCI_COLUMNS))
+    columns = [table.column(name).to_pylist() for name in ESCI_COLUMNS]
+    identifiers, texts, items, locales, labels, splits = columns
+    keep_locale = origin.get("locale")
+    keep_labels = set(origin.get("labels", ()))
+    rows = []
+    for identifier, text, item, locale, label in zip(
+            identifiers, texts, items, locales, labels):
+        if (keep_locale is None or locale == keep_locale) and label in keep_labels:
+            rows.append((str(identifier), text, item))
+    extras = {
+        "rows_in_file": len(identifiers),
+        "rows_after_filter": len(rows),
+        "filter": {"locale": keep_locale, "labels": sorted(keep_labels)},
+        "locale_distribution": dict(sorted(Counter(locales).items())),
+        "label_distribution": dict(sorted(Counter(labels).items())),
+        "split_distribution": dict(sorted(Counter(splits).items())),
+    }
+    return rows, extras
+
+
 def collect_queries(data: Path, category: str, destination: Path, force: bool = False) -> Path:
     """Phrase-to-item pairs written outside this lab, restricted to our catalogue.
 
     Their length spread and phrasing are the reference shape for phrases this lab
-    derives from its own evidence, and their labels score phrase matching directly.
+    derives from its own evidence. A pair is kept when its item is a catalogue
+    ASIN and its source-specific filter passes, so a kept ESCI phrase is one a
+    real shopper typed that was judged to find the item. The first staged pair
+    per (source, item) is the one a request reads.
     """
-    import csv
-    import io
-
+    cache = Path(__file__).resolve().parents[1] / "data" / "cache"
     out_path = destination / f"{category}.queries.jsonl.gz"
     if out_path.exists() and not force:
         report(f"queries already staged at {out_path.name}; --force to refetch")
@@ -193,29 +270,32 @@ def collect_queries(data: Path, category: str, destination: Path, force: bool = 
     seen, lengths = set(), []
     with gzip.open(out_path, "wt", encoding="utf-8", compresslevel=6) as sink:
         for origin in QUERY_SOURCES:
-            url = HF_FILE.format(repo=origin["repo"], path=origin["path"])
-            request = urllib.request.Request(url, headers={"User-Agent": "recommendation-decision-lab/0.1"})
-            with urllib.request.urlopen(request, timeout=300) as response:
-                body = response.read().decode("utf-8-sig")
+            rows, extras = _fetch_query_source(origin, cache)
             counted = kept = 0
-            for row in csv.DictReader(io.StringIO(body)):
+            for identifier, text, item in rows:
                 counted += 1
-                item = row.get(QUERY_FIELDS["item"])
-                text = " ".join((row.get(QUERY_FIELDS["query"]) or "").split())
+                text = " ".join((text or "").split())
                 key = (origin["source"], text, item)
                 if not text or item not in catalogue or key in seen:
                     continue
                 seen.add(key)
                 lengths.append(len(text.split()))
-                sink.write(json.dumps({"query_id": f"{origin['source']}:{row.get(QUERY_FIELDS['identifier'])}",
+                sink.write(json.dumps({"query_id": f"{origin['source']}:{identifier}",
                                        "text": text, "asin": item, "source": origin["source"]},
                                       ensure_ascii=False, separators=(",", ":")) + "\n")
                 kept += 1
-            stats["sources"][origin["source"]] = {"rows_scanned": counted, "rows_kept": kept,
-                                                  "url": url, "note": origin["note"]}
-            stats["rows_scanned"] += counted
+            entry = {
+                "rows_scanned": extras.get("rows_in_file", counted),
+                "rows_kept": kept,
+                "url": origin.get("url") or HF_FILE.format(repo=origin["repo"], path=origin["path"]),
+                "note": origin["note"],
+            }
+            entry.update(extras)
+            stats["sources"][origin["source"]] = entry
+            stats["rows_scanned"] += entry["rows_scanned"]
             stats["rows_kept"] += kept
-            report(f"{origin['source']}: {kept:,} of {counted:,} rows point at this catalogue")
+            eligible = entry.get("rows_after_filter", counted)
+            report(f"{origin['source']}: {kept:,} of {eligible:,} eligible rows point at this catalogue")
     stats["distinct_queries"] = len({text for _, text, _ in seen})
     stats["distinct_items"] = len({item for _, _, item in seen})
     stats["catalogue_items"] = len(catalogue)

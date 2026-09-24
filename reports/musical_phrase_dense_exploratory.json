@@ -21,10 +21,10 @@
       "positive_rows": 367558
     },
     "text": {
-      "corpus_sha256": "711f0ef22665a7746c3455c699d2d401729fd100532e242c03163c45d6d1ae21",
-      "voices_sha256": "b780fd9417661cd32ae92a22066a4d7a6bd7e2ffa64a857c3a6e97015278294e",
+      "corpus_sha256": "4cec809e3cfe76aa2596d2a5222ed0ae9f1956d4f66f62287fbf084db2ce9fe2",
+      "voices_sha256": "1efb7dfc4142ca1cff46f0244a9e0c783dd6a0eaee705a97f010a12e70f125fe",
       "people_with_own_words": 55981,
-      "published_pairs": 157,
+      "published_pairs": 1966,
       "items_with_titles": 22751,
       "review_limit": 4,
       "phrase_index": "all-MiniLM-L6-v2 encoded on cuda",
@@ -172,15 +172,15 @@
         },
         "published": {
           "requests": 33993,
-          "phrased_requests": 854,
-          "phrase_coverage": 0.0251,
-          "ndcg_at_10": 0.015237,
-          "recall_at_10": 0.025358,
-          "surfaced_in_top_three": 0.012944,
+          "phrased_requests": 2663,
+          "phrase_coverage": 0.0783,
+          "ndcg_at_10": 0.018489,
+          "recall_at_10": 0.031448,
+          "surfaced_in_top_three": 0.016062,
           "ndcg_minus_base": {
-            "delta": 0.003268,
-            "lower": 0.002668,
-            "upper": 0.003849,
+            "delta": 0.00652,
+            "lower": 0.005758,
+            "upper": 0.007281,
             "users": 13908,
             "draws": 1000
           },
@@ -214,9 +214,9 @@
           "reach": 0.0081
         },
         "published": {
-          "chances": 854,
-          "target_reached": 448,
-          "reach": 0.5246
+          "chances": 2663,
+          "target_reached": 1745,
+          "reach": 0.6553
         }
       },
       "behavioural_shortlist": {
@@ -232,9 +232,9 @@
           "repulsion": 0.0,
           "price_penalty": 0.5
         },
-        "requests_compared": 31,
-        "mean_spearman": 0.4774,
-        "median_overlap_at_depth": 14
+        "requests_compared": 34,
+        "mean_spearman": 0.4987,
+        "median_overlap_at_depth": 15
       },
       {
         "config": {
@@ -242,8 +242,8 @@
           "repulsion": 0.0,
           "price_penalty": 0.5
         },
-        "requests_compared": 21,
-        "mean_spearman": 0.3121,
+        "requests_compared": 23,
+        "mean_spearman": 0.3551,
         "median_overlap_at_depth": 14
       },
       {
@@ -252,9 +252,9 @@
           "repulsion": 0.0,
           "price_penalty": 0.5
         },
-        "requests_compared": 20,
-        "mean_spearman": 0.2468,
-        "median_overlap_at_depth": 13
+        "requests_compared": 19,
+        "mean_spearman": 0.3499,
+        "median_overlap_at_depth": 17
       }
     ]
   },
@@ -347,15 +347,15 @@
       },
       "published": {
         "requests": 35905,
-        "phrased_requests": 681,
-        "phrase_coverage": 0.019,
-        "ndcg_at_10": 0.010814,
-        "recall_at_10": 0.018354,
-        "surfaced_in_top_three": 0.009191,
+        "phrased_requests": 1983,
+        "phrase_coverage": 0.0552,
+        "ndcg_at_10": 0.012913,
+        "recall_at_10": 0.022365,
+        "surfaced_in_top_three": 0.011141,
         "ndcg_minus_base": {
-          "delta": 0.002132,
-          "lower": 0.001669,
-          "upper": 0.002622,
+          "delta": 0.004232,
+          "lower": 0.003578,
+          "upper": 0.004884,
           "users": 11648,
           "draws": 1000
         },
@@ -389,9 +389,9 @@
         "reach": 0.0069
       },
       "published": {
-        "chances": 681,
-        "target_reached": 376,
-        "reach": 0.5521
+        "chances": 1983,
+        "target_reached": 1347,
+        "reach": 0.6793
       }
     },
     "behavioural_shortlist": {
@@ -455,15 +455,15 @@
     },
     "local_request_ms": {
       "requests": 200,
-      "p50": 26.891,
-      "p95": 62.238,
+      "p50": 27.623,
+      "p95": 42.337,
       "scope": "one phrase and one unravelling request; no HTTP, model load, or disk"
     }
   },
   "limitations": [
     "own_words, own_words_scrubbed, target_title and random_title are worded with the answer in view: only their paired difference to base is reportable, never their absolute score",
     "own_words skips the target item's own text, yet a person's earlier sentences can still name the product they had already decided on; the scrubbed column measures how much of any gain is that, and it is a diagnostic, not a fix",
-    "published phrases are few and were written for other purposes, so that column anchors phrase shape rather than carrying the result",
+    "external query pairs are attached by known target; the ESCI queries are the full official Shopping Queries Dataset (US locale, judged an exact match or an acceptable substitute) while the Amazon-C4 rewrites are a small first-person set; the two sources must be read separately",
     "product prose is cut at the train cutoff, but a person's own sentences inside the evaluation period can describe the item they went on to review",
     "one fixed temporal split per category, aggregate output only",
     "product text and published phrases are fetched locally under their own licences, which this repository does not redistribute"

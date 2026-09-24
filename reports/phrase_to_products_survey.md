@@ -108,6 +108,28 @@ selected recent popularity 0.008007 NDCG@10 over 35,905 eligible requests; paire
   (lexical) and LLM-generated queries with adaptive routing; +27.6% ad conversion in A/B. The practitioner
   lexical-vs-embedding result: lexical/rule queries still win where intent is exact-match/retargeting, LLM queries win on
   vague intent — routing, not replacement. Limitation: the +27.6% is on the routed slice, not sitewide.
+- Semantic Retrieval for Product Search in E-Commerce (arXiv:2606.01504, Kothari et al.). Siamese LLM
+  dual-encoder in two stages: contrastive training with a false-negative margin mask, then ROAR, a Bradley-Terry
+  extension over "variable-sized graded relevance groups via consecutive odds-ratio margins". The stage that
+  matters here: "substitute query-product pairs provide coarse semantic supervision in Stage 1" — external
+  confirmation that ESCI Substitute judgements function as target-reachable positive pairs for retrieval
+  training, which is the inclusion this repository's query bank makes. Gains "confirmed across query-frequency
+  strata and business verticals" and "validated through live A/B deployment at scale". Limitation: industrial
+  setting, no public benchmark numbers in the abstract; the graded-relevance ordering is a search-ranking result,
+  not a comparison against a behavioural recommender under a temporal split.
+- ClardRec — Counterfactual Learning-Driven Representation Disentanglement for Search-Enhanced
+  Recommendation (arXiv:2411.18631, Cui et al.). The transfer caution for the query→item axis: "search
+  activities provide additional insights into user interest through query-click interactions", but interacted
+  items "also have features related to users' unique intents in the search domain", so direct incorporation
+  "introduce[s] partial negative transfer"; counterfactual signals built from search queries disentangle
+  query-independent item features that then augment CF and sequential recommenders. Limitation: the query
+  signal is logged query-click behaviour, not request-time wording, and the abstract names no datasets or
+  backbones — the transfer claim cannot be checked beyond "real datasets".
+- OSPO — Owen-Shapley Policy Optimization (arXiv:2601.08403, Nath et al.). Token-level credit assignment
+  (Owen/Shapley attribution as potential-based reward shaping) for RL-trained generative search LLMs doing
+  "personalized recommendation" from under-specified language; evaluated "on Amazon ESCI and H&M Fashion
+  datasets". Limitation: preprint with no venue; ESCI serves here as evaluation currency for a generative
+  retriever, not as a temporal recommender comparison, so it does not touch the paired-gate question.
 - (Also checked but not cited: BEQUE long-tail query rewriting deployed on Taobao since Oct 2023, arXiv:2311.03758;
   JD's multi-task multi-stage LLM query rewriting grounded in relevance, ICDE 2026, arXiv:2603.02555; GRIT + the
   task-oriented-query benchmark over ESCI, +6.3% recall, arXiv:2504.05310.)
@@ -291,7 +313,10 @@ Not measurable here (would need real query logs, real users, or audio):
 
 Each identifier below was resolved against the arXiv export API on 23 September 2026, in the
 order the papers appear in this note, and the title that API returned is reproduced as the link
-text so a reader can check that a claim is attached to the paper it came from.
+text so a reader can check that a claim is attached to the paper it came from. The last three
+entries (2606.01504, 2411.18631, 2601.08403), added the same day after the query-bank scale-up,
+were resolved against their arxiv.org/abs pages instead — the export API refused all listed-search
+requests that day — and their quoted sentences were checked against the abstract text.
 - [Recommendation as Instruction Following: A Large Language Model Empowered Recommendation Approach](https://arxiv.org/abs/2305.07001)
 - [Chat-REC: Towards Interactive and Explainable LLMs-Augmented Recommender System](https://arxiv.org/abs/2303.14524)
 - [Towards Open-World Recommendation with Knowledge Augmentation from Large Language Models](https://arxiv.org/abs/2306.10933)
@@ -317,6 +342,9 @@ text so a reader can check that a claim is attached to the paper it came from.
 - [Domain-Adaptive and Scalable Dense Retrieval for Content-Based Recommendation](https://arxiv.org/abs/2602.00899)
 - [LEAPS: An LLM-Empowered Adaptive Plugin in Taobao AI Search](https://arxiv.org/abs/2601.05513)
 - [SMART: LLM-Augmented Hybrid Retrieval for Dynamic Product Ads](https://arxiv.org/abs/2607.23121)
+- [Semantic Retrieval for Product Search in E-Commerce](https://arxiv.org/abs/2606.01504)
+- [Counterfactual Learning-Driven Representation Disentanglement for Search-Enhanced Recommendation](https://arxiv.org/abs/2411.18631)
+- [Owen-Shapley Policy Optimization: A Principled RL Algorithm for Generative Search LLMs](https://arxiv.org/abs/2601.08403)
 - [Large Language Model based Long-tail Query Rewriting in Taobao Search](https://arxiv.org/abs/2311.03758)
 - [Relevance Matters: A Multi-Task and Multi-Stage Large Language Model Approach for E-commerce Query Rewriting](https://arxiv.org/abs/2603.02555)
 - [GRIT: Graph-based Recall Improvement for Task-oriented E-commerce Queries](https://arxiv.org/abs/2504.05310)

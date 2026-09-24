@@ -101,7 +101,9 @@ two. An artifact records the model, dimensions, item list, document hash and cor
 text rather than scoring against stale vectors.
 
 `reliability/phrasing.py` scores the arm. It reads the corpus, the review prose of earlier
-reviewers and published query pairs from the same archives, builds a scrubbed variant that
+reviewers, and the published query pairs fetched by `tools/text_corpus.py` (the full official
+ESCI Shopping Queries Dataset, US locale, judged an exact match or an acceptable substitute,
+plus review-derived Amazon-C4 rewrites), builds a scrubbed variant that
 keeps only product words appearing in under 1% of listings, scores six conditions against
 five weight configurations, and selects its configuration with a rule recorded in the
 decision file: best validation `own_words` NDCG@10, then the smaller weights. It writes

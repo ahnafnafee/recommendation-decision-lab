@@ -27,6 +27,15 @@ collected at the top.
 - `tools/text_corpus.py`, which fetches product listings, earlier review prose and published
   query pairs into Git-ignored `data/text/` and writes a schema-3 manifest holding the
   corpus and voices hashes every later artifact is checked against.
+- The phrase source audit (`tools/phrase_source_audit.py`) now also joins each staged ESCI
+  pair to its recorded judgement when the hash-pinned parquet is cached, and runs a
+  catalogue-scope reach probe checked against the saved run's `phrase_route_reach`. The
+  saved `reports/*_phrase_sources.json` files gain an exact/substitute contribution split —
+  substitute-judged pairs contribute +0.000393 (270 requests) on Musical Instruments and
+  +0.000346 (359 requests) on Video Games and almost never worsen the requests they attach
+  to (0 of 270 and 6 of 359) — and a substitute-inclusive reach (65.25% and 58.49% against
+  the strict 61.57% and 53.90%). Descriptive diagnostics beside the frozen gate, which is
+  untouched.
 - `reliability/phrasing.py`, the measured wording arm: six wording conditions scored against
   five weight configurations, with `validation_decision.json` written before the test split
   is opened and the configuration chosen by a fixed recorded rule. On the full Musical
@@ -74,6 +83,34 @@ collected at the top.
 
 ### Changed
 
+- The `published` wording condition's external query pairs now come from the full official
+  ESCI Shopping Queries Dataset (the single hash-verified parquet of
+  [amazon-science/esci-data](https://github.com/amazon-science/esci-data), Apache License
+  2.0): the 2,621,288 judged (query, product) rows restricted to the US locale and to the
+  exact-match and acceptable-substitute judgements, with both splits retained, replacing
+  the small observed-query slice. `tools/text_corpus.py` fetches and verifies the file
+  once into the Git-ignored cache and records the locale, label and split distributions in
+  the manifest. The catalogue-restricted bank grows from 157 to 1,966 Musical Instruments
+  pairs and from 271 to 3,951 for Video Games, `data/text/` is re-staged against it, and
+  the three measured runs are re-recorded under the same frozen validation-then-test
+  protocol. The wording conditions that never read the query bank are bit-identical, so
+  the selection grid — which depends only on `own_words` — is unchanged; the still-selected
+  configuration (phrase weight 0.25, repulsion 0, price penalty 0.5) is the invariance
+  check. Re-measured, the positive `published` delta grows from +0.002394 to
+  +0.004931 on Musical Instruments (full 35,905-request split, interval 0.004261 to
+  0.005611) and from +0.003115 to +0.006167 on Video Games (0.005505 to
+  0.006885); the encoded Musical Instruments route grows from +0.002132 to
+  +0.004232 (0.003578 to 0.004884). With the full bank both sources contribute positively — ESCI
+  +0.002500 / +0.003883, C4 +0.002431 / +0.002284, Musical Instruments /
+  Video Games — so the small observed-query slice's negative ESCI reading was
+  a sample artifact.
+- `tools/phrase_source_audit.py`: when the hash-verified ESCI parquet is present in the
+  cache, the source audit now also splits the ESCI contribution by judgement (exact match
+  versus acceptable substitute) and reports a substitute-inclusive reach count — the share
+  of matched requests whose phrase route lands on the staged target or on any product
+  judged an acceptable substitute for that query. Its strict reach counts are
+  cross-checked against the saved run's phrase-route reach, and its probe parses the
+  staged phrases into utterances the same way the measured arm does.
 - `paper/main.tex`: the manuscript now reports every challenger family in the repository —
   the committed co-review hybrid, the gated two-tower retriever, the two arms that re-read
   evidence the platform already holds, the arm that asks instead, the size-conditioned prior,
@@ -97,7 +134,8 @@ collected at the top.
 - Clarified the wording-arm interpretation: shortlist coverage and unconstrained
   phrase reach are separate marginal diagnostics, not a measured product, and an
   exact-title probe does not rule out retrieval failures for natural queries.
-  Published-phrase gains are full-split averages from a small matched subset.
+  Published-phrase gains are full-split averages from the target-linked matched subset,
+  not from all scored requests.
 - The shadow audit had counted one number for two different things: history slots with no
   user–item rating in training and history slots whose item is absent from the training
   catalog. `tools/signal_audit.py` now reports them separately — on Musical Instruments

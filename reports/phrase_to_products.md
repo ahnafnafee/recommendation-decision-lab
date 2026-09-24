@@ -118,29 +118,46 @@ positive on the validation cohort (+0.001048, interval −0.000062 to
 +0.002109) but loses on the full test split (−0.001282, interval −0.001944 to
 −0.000577), so the gate stays closed on both routes. Among phrase-like
 conditions, only the mixed external-pair condition has a positive full-split paired
-difference: +0.002394 by the lexical route and +0.002132 by the encoded route
-on Musical Instruments (intervals 0.001892 to 0.002875 and 0.001669 to
-0.002622), and +0.003115 on Video Games (0.002714 to 0.003545). These
+difference: +0.004931 by the lexical route and +0.004232 by the encoded route
+on Musical Instruments (intervals 0.004261 to 0.005611 and 0.003578 to
+0.004884), and +0.006167 on Video Games (0.005505 to 0.006885). These
 differences average over all test requests, although an external pair is
-available for only 681 Musical Instruments requests and 824 Video Games
+available for only 1,983 Musical Instruments requests and 2,115 Video Games
 requests. The selected pairs do not represent live query traffic. The lexical
 contribution decomposes as follows; each entry uses the entire category test
 split as its denominator, so the source contributions add to the mixed delta.
 
 | category | ESCI observed-query contribution | Amazon-C4 review-rewrite contribution | mixed external-pair delta |
 | --- | ---: | ---: | ---: |
-| Musical Instruments | −0.000144 (182 requests, 49 targets) | +0.002538 (499 requests, 45 targets) | +0.002394 |
-| Video Games | +0.000425 (208 requests, 64 targets) | +0.002690 (616 requests, 60 targets) | +0.003115 |
+| Musical Instruments | +0.002500 (1,512 requests, 553 targets) | +0.002431 (471 requests, 41 targets) | +0.004931 |
+| Video Games | +0.003883 (1,568 requests, 615 targets) | +0.002284 (547 requests, 47 targets) | +0.006167 |
 
-The C4 pair counts in the catalog are 53 and 65; the ESCI counts are 104 and
-206. The request counts are larger because the same target-linked phrase is used
+The C4 pair counts in the catalog are 53 and 65; the ESCI counts are 1,913 and
+3,886, so the catalog carries 1,966 in-catalogue Musical Instruments pairs and
+3,951 Video Games pairs. The request counts are larger because the same target-linked phrase is used
 for multiple later review requests. The [source audit](musical_phrase_sources.json)
 and [Video Games counterpart](video_games_phrase_sources.json) are reproduced by
 `python -m tools.phrase_source_audit --category Musical_Instruments` and the same
 command for `Video_Games`. This is a descriptive decomposition, not a separate
-confirmatory experiment. In Musical Instruments, the positive mixed result is
-entirely due to the review-derived rewrites; the observed-query contribution is
-negative.
+confirmatory experiment. At full scale both sources contribute positively: the
+official ESCI queries are the larger contributor in both categories (slightly
+so on Musical Instruments, clearly so on Video Games), while the rewrites keep
+the larger per-request effect (mean +0.1853 versus +0.0594 per matched request
+on Musical Instruments, +0.1485 versus +0.0881 on Video Games); the small
+observed-query slice that read the ESCI contribution as negative was a sample
+artifact.
+
+The audit also separates the ESCI pairs by their recorded judgement and, separately,
+asks whether the route reached a product judged an acceptable substitute for the
+staged query. Exact-match pairs contribute +0.002107 on 1,242 Musical Instruments
+requests and +0.003537 on 1,209 Video Games requests; acceptable-substitute pairs
+contribute +0.000393 on 270 and +0.000346 on 359 requests, and they almost never
+worsen the request they attach to (0 of 270 on Musical Instruments, 6 of 359 on
+Video Games). Counting a reached substitute as a hit lifts the strict mixed-set
+reach from 61.57% to 65.25% on Musical Instruments (73 requests) and from 53.90%
+to 58.49% on Video Games (97 requests). The paired intervals above still score
+the exact target only; the substitute credit is a descriptive reading of the
+many-valid-answers gap, not a second gate.
 
 Two separate constraints limit the confined arm (full reach table in the
 manuscript):
@@ -152,24 +169,24 @@ manuscript):
 | `cross_words` reach | 0.74% | 0.56% | somebody else's words are worse, as expected |
 | `target_title` reach | 99.98% | 99.97% | target-informed exact wording confirms the index can recover a known title, but does not test natural-query retrieval |
 | `random_title` reach | 0.73% | 0.42% | and that is not an accident of a permissive index |
-| mixed external-pair reach | 47.72% | 33.50% | target-linked ESCI queries and Amazon-C4 rewrites reach more often than earlier review prose; this is not a live-request comparison |
+| mixed external-pair reach | 61.57% | 53.90% | target-linked ESCI queries and Amazon-C4 rewrites reach more often than earlier review prose; this is not a live-request comparison |
 
-The gap between `own_words` at 2.42% and the mixed external set at 47.72%
+The gap between `own_words` at 2.42% and the mixed external set at 61.57%
 indicates that earlier review prose is a poor proxy for target-linked query
 wording, but does not isolate the effect of real search intent. The
 33.21% behavioural shortlist coverage is another constraint: even a useful
 phrase cannot promote a target outside that shortlist. These are marginal
 rates with different denominators, so their product is not a measured joint
 ceiling. Exact-title reach checks the index on target-informed wording; the
-mixed-set reach below 50% shows that retrieval can still fail even when words
-are linked to the target. Under the frozen protocol, the negative own-words result is
+mixed-set reach, still far short of the exact-title probe, shows that
+retrieval can still fail even when words are linked to the target. Under the frozen protocol, the negative own-words result is
 reported rather than tuned away, and neither diagnostic establishes the
 quality of live typed requests.
 
 In-process timing on the scored requests (one phrase and one unravelling
-request; no HTTP, model load, or disk): 38.3 ms median and 48.1 ms at the 95th
-percentile for Musical Instruments, 21.2 ms and 29.3 ms for Video Games, and
-26.9 ms and 62.2 ms for the encoded route on Musical Instruments.
+request; no HTTP, model load, or disk): 23.1 ms median and 30.3 ms at the 95th
+percentile for Musical Instruments, 22.1 ms and 36.2 ms for Video Games, and
+27.6 ms and 42.3 ms for the encoded route on Musical Instruments.
 
 ## Data and artifacts
 
@@ -179,12 +196,16 @@ Product text is fetched locally into the Git-ignored `data/text/` directory from
 or the origin mirror, with `tools/text_corpus.py`: 22,753 Musical Instruments
 listings (55,981 people with their own review prose) and 22,976 Video Games
 listings (92,807 people), corpus manifest schema 3.
-External query pairs are scarce — `blair-bench` (ESCI) plus `Amazon-C4` give 157
-in-catalogue Musical Instruments pairs and 271 for Video Games. ESCI contains
-observed shopping queries, while Amazon-C4 contains semi-synthetic rewrites of
-reviews written about their target products. They must not be presented together
-as real searcher wording; this is why `published` is a diagnostic and not the
-headline condition.
+External query pairs come from the full official
+[ESCI Shopping Queries Dataset](https://github.com/amazon-science/esci-data)
+release (US locale, judged an exact match or an acceptable substitute for the
+item, both splits) plus `Amazon-C4`, giving 1,966 in-catalogue Musical
+Instruments pairs and 3,951 for Video Games. ESCI contains shopping queries
+people typed that were judged against catalogue items, while Amazon-C4 contains
+semi-synthetic rewrites of reviews written about their target products. The two
+sources are measured separately and must not be presented together as real
+searcher wording; this is why `published` is a diagnostic and not the headline
+condition.
 `tools/build_text_index.py` encodes each listing with `all-MiniLM-L6-v2` (384
 dimensions, 2 reviews per product so the document fits the model's 256-token
 window). Everything heavier than the standard library sits behind an optional
@@ -192,9 +213,12 @@ extra: `pip install -e ".[language]"`.
 
 ## Limits
 
-- No public dataset links free-form wording to these ASINs at scale, so the primary
-  condition uses a person's earlier review prose as a proxy for a spoken request.
-  It is the closest available substitute, not the same thing.
+- No condition carries a live typed request. Worded-by-somebody-else phrasing is
+  available at scale — the full official ESCI release links typed queries to
+  catalogue items — but it arrives target-linked, so `published` is read as a
+  diagnostic. The primary condition therefore uses a person's earlier review
+  prose as a proxy for a spoken request: the closest available
+  non-answer-informed substitute, not the same thing.
 - NDCG@10 with a single target scores one product. A sentence that legitimately
   matches five products is credited for one.
 - The frozen splits are not reordered or re-filtered. Published splits leak up to
